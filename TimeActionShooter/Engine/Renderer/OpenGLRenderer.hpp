@@ -11,7 +11,7 @@
 #include "../Math/MyMathFiles.hpp"
 #include "../Math/Vertex.hpp"
 #include "../Constants.hpp"
-#include "../Camera/Camera.hpp"
+#include "../Camera/Camera2D.hpp"
 #include "../Time/Time.hpp"
 #include "../Matrix/MatrixStack.hpp"
 #include "../Matrix/Matrix4x4.hpp"
@@ -24,7 +24,7 @@ class OpenGLRenderer
 public:
 	OpenGLRenderer();
 	void Initialize();
-	void SendViewMatrix( const Camera& myCamera );
+	//void SendViewMatrix( const Camera& myCamera );
 	void AddCubeToBuffer( const Vector3& minPosition, char cellType );
 	void PushCubeVerticesToVBO();
 	void PopMatrix();
@@ -33,7 +33,7 @@ public:
 	void DrawTargetCellOutline( const Vector3& startPosition );
 
 	void DeleteBuffers();
-	void SetModelViewProjectionMatrix(const Camera& camera);
+	//void SetModelViewProjectionMatrix(const Camera& camera);
 
 	int CreateVertexShader( const char* Filename );
 	int CreateFragmentShader( const char* Filename );
@@ -55,6 +55,11 @@ public:
 	GLuint m_normalAttributeLocation;
 	GLuint m_cellTypeAttributeLocation;
 	GLuint m_vertexAttributeLocation;
+
+	void SetTranslationMatrix( const Camera2D& camera );
+	void SetOrthoMatrix( const Camera2D& camera );
+
+	static void DrawTriangleFan( const Vector2& position, const RGBA& color, float radius, float segments=10.f );
 };
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;

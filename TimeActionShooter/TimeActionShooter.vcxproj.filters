@@ -43,7 +43,16 @@
     <ClCompile Include="Engine\Matrix\MatrixStack.cpp">
       <Filter>Engine\Matrix</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Camera\Camera.cpp">
+    <ClCompile Include="Game\Player.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Enemy.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Bullet.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Camera\Camera2D.cpp">
       <Filter>Engine\Camera</Filter>
     </ClCompile>
   </ItemGroup>
@@ -93,7 +102,16 @@
     <ClInclude Include="Engine\Math\Vertex.hpp">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Camera\Camera.hpp">
+    <ClInclude Include="Game\Player.hpp">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Enemy.hpp">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Bullet.hpp">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Camera\Camera2D.hpp">
       <Filter>Engine\Camera</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,7 +8,7 @@
 #include "../Game/World.hpp"
 #include "Time/Time.hpp"
 #include "Constants.hpp"
-#include "Camera/Camera.hpp"
+#include "Camera/Camera2D.hpp"
 #pragma comment( lib, "opengl32" ) // Link in the OpenGL32.lib static library
 #pragma comment( lib, "glu32") // Link in the GLu.lib static library
 
@@ -23,7 +23,7 @@ const int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 
 //-------------------------------------------------------------------------------------------------
 World g_theWorld;
-Camera g_myCamera;
+Camera2D g_myCamera;
 bool g_windowHasFocus;
 
 
@@ -40,16 +40,16 @@ const char* APP_NAME = "Win32 OpenGL Minimum Test App";
 
 //-----------------------------------------------------------------------------------------------
 void moveInCameraFacingDirection() {
-	g_myCamera.m_cameraPosition.x += 0.1f * sin(g_myCamera.m_cameraPitch);
-	g_myCamera.m_cameraPosition.y += 0.1f * -sin(g_myCamera.m_cameraRoll);
-	g_myCamera.m_cameraPosition.z += 0.1f * -cos(g_myCamera.m_cameraPitch);
+// 	g_myCamera.m_cameraPosition.x += 0.1f * sin(g_myCamera.m_cameraPitch);
+// 	g_myCamera.m_cameraPosition.y += 0.1f * -sin(g_myCamera.m_cameraRoll);
+// 	g_myCamera.m_cameraPosition.z += 0.1f * -cos(g_myCamera.m_cameraPitch);
 }
 
 //-----------------------------------------------------------------------------------------------
 void moveOppositeOfCameraFacingDirection() {
-	g_myCamera.m_cameraPosition.x += 0.1f * sin(g_myCamera.m_cameraPitch);
-	g_myCamera.m_cameraPosition.y -= 0.1f * -sin(g_myCamera.m_cameraRoll);
-	g_myCamera.m_cameraPosition.z += 0.1f * cos(g_myCamera.m_cameraPitch);
+// 	g_myCamera.m_cameraPosition.x += 0.1f * sin(g_myCamera.m_cameraPitch);
+// 	g_myCamera.m_cameraPosition.y -= 0.1f * -sin(g_myCamera.m_cameraRoll);
+// 	g_myCamera.m_cameraPosition.z += 0.1f * cos(g_myCamera.m_cameraPitch);
 }
 
 //-----------------------------------------------------------------------------------------------

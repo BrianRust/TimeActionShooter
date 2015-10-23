@@ -77,15 +77,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Engine\Camera\Camera.cpp" />
+    <ClCompile Include="Engine\Camera\Camera2D.cpp" />
     <ClCompile Include="Engine\Main_Win32.cpp" />
     <ClCompile Include="Engine\Matrix\MatrixStack.cpp" />
     <ClCompile Include="Engine\Renderer\OpenGLRenderer.cpp" />
     <ClCompile Include="Engine\Time\Time.cpp" />
+    <ClCompile Include="Game\Bullet.cpp" />
+    <ClCompile Include="Game\Enemy.cpp" />
+    <ClCompile Include="Game\Player.cpp" />
     <ClCompile Include="Game\World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Engine\Camera\Camera.hpp" />
+    <ClInclude Include="Engine\Camera\Camera2D.hpp" />
     <ClInclude Include="Engine\Constants.hpp" />
     <ClInclude Include="Engine\Math\IntVector2.hpp" />
     <ClInclude Include="Engine\Math\IntVector3.hpp" />
@@ -100,6 +103,9 @@
     <ClInclude Include="Engine\Renderer\glext.h" />
     <ClInclude Include="Engine\Renderer\OpenGLRenderer.hpp" />
     <ClInclude Include="Engine\Time\Time.hpp" />
+    <ClInclude Include="Game\Bullet.hpp" />
+    <ClInclude Include="Game\Enemy.hpp" />
+    <ClInclude Include="Game\Player.hpp" />
     <ClInclude Include="Game\World.hpp" />
   </ItemGroup>
   <ItemGroup>

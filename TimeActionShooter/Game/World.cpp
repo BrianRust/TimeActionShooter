@@ -8,12 +8,13 @@ World::World(  )
 	: m_mousePositionXDifference(0.f)
 	, m_mousePositionZDifference(0.f)
 	, m_isPaused(true)
+	, m_player(Player())
+	, m_camera(Camera2D())
+	, m_renderer(OpenGLRenderer())
+	, m_keyIsHeld(false)
 {
 	srand ((unsigned int)(time(NULL)));
 
-	m_camera = Camera();
-	m_renderer = OpenGLRenderer();
-	m_keyIsHeld = false;
 }
 
 //----------------------------------------------------
@@ -39,8 +40,8 @@ bool World::ProcessKeyUpEvent( unsigned char virtualKeyCode)
 //----------------------------------------------------
 void World::UpdateCameraFromInput( float deltaSeconds ) 
 {
-	m_camera.m_cameraPitch -= deltaSeconds * m_mousePositionZDifference * ConstantParameters::MOUSE_SPEED;
-	m_camera.m_cameraYaw += deltaSeconds * m_mousePositionXDifference * ConstantParameters::MOUSE_SPEED;
+// 	m_camera.m_cameraPitch -= deltaSeconds * m_mousePositionZDifference * ConstantParameters::MOUSE_SPEED;
+// 	m_camera.m_cameraYaw += deltaSeconds * m_mousePositionXDifference * ConstantParameters::MOUSE_SPEED;
 }
 
 //----------------------------------------------------
@@ -96,75 +97,61 @@ void World::UpdatePlayerFromInput( float deltaSeconds )
 	
 	if (m_isKeyDown[ VK_LEFT ]) 
 	{
-		m_camera.m_cameraYaw += deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		//m_camera.m_cameraYaw += deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[ VK_RIGHT ]) 
 	{
-		m_camera.m_cameraYaw -= deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		//m_camera.m_cameraYaw -= deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[ VK_UP ]) 
 	{
-		m_camera.m_cameraPitch -= deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		//m_camera.m_cameraPitch -= deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[ VK_DOWN ]) 
 	{
-		m_camera.m_cameraPitch += deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		//m_camera.m_cameraPitch += deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[ 'W' ]) 
 	{
-		m_camera.m_cameraPosition.x += cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-		m_camera.m_cameraPosition.y += sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+// 		m_camera.m_cameraPosition.x += cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+// 		m_camera.m_cameraPosition.y += sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[ 'D' ]) 
 	{
-		m_camera.m_cameraPosition.y -= cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-		m_camera.m_cameraPosition.x += sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+// 		m_camera.m_cameraPosition.y -= cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+// 		m_camera.m_cameraPosition.x += sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[ 'S' ]) 
 	{
-		m_camera.m_cameraPosition.x -= cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-		m_camera.m_cameraPosition.y -= sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+// 		m_camera.m_cameraPosition.x -= cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+// 		m_camera.m_cameraPosition.y -= sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[ 'A' ]) 
 	{
-		m_camera.m_cameraPosition.y += cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-		m_camera.m_cameraPosition.x -= sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+// 		m_camera.m_cameraPosition.y += cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+// 		m_camera.m_cameraPosition.x -= sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[ VK_SPACE ]) 
 	{
-		m_camera.m_cameraPosition.z += deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		//m_camera.m_cameraPosition.z += deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if (m_isKeyDown[VK_CONTROL]) 
 	{
-		m_camera.m_cameraPosition.z -= deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		//m_camera.m_cameraPosition.z -= deltaSeconds * ConstantParameters::CAMERA_SPEED;
 	}
 
 	if ( !( m_isKeyDown[ 'T' ] || m_isKeyDown[ 'R' ] || m_isKeyDown[ 'P' ]) ) 
 	{
 		m_keyIsHeld = false;
-	}
-}
-
-//----------------------------------------------------
-void World::CheckForGimbleLock() 
-{
-	if (m_camera.m_cameraPitch >= ConstantParameters::CAMERA_Z_MAX) 
-	{
-		m_camera.m_cameraPitch = ConstantParameters::CAMERA_Z_MAX - 0.005f;
-	}
-
-	if (m_camera.m_cameraPitch <= -ConstantParameters::CAMERA_Z_MAX) 
-	{
-		m_camera.m_cameraPitch = -ConstantParameters::CAMERA_Z_MAX + 0.005f;
 	}
 }
 
@@ -177,7 +164,6 @@ void World::Update()
 	UpdatePlayerFromInput( deltaSeconds );
 	UpdateCameraFromInput( deltaSeconds );
 	//UpdateFromMouseInput();
-	//CheckForGimbleLock();
 
 	if (!m_isPaused) 
 	{
@@ -188,7 +174,20 @@ void World::Update()
 //----------------------------------------------------
 void World::Render() 
 {	
-	m_renderer.SetModelViewProjectionMatrix(m_camera);
+	//m_renderer.SetModelViewProjectionMatrix(m_camera);
+
+	glUseProgram(0);
+	glDisable(GL_TEXTURE_2D);
+	glDisable( GL_CULL_FACE );
+	glDisable(GL_DEPTH_TEST);
+	glPushMatrix();
+
+	m_renderer.SetOrthoMatrix( m_camera );
+	m_renderer.SetTranslationMatrix( m_camera );
+
+	m_player.Render();
+
+	glPopMatrix();
 	//m_renderer.SendCubeVBO();
 	//m_renderer.PopMatrix();
 }

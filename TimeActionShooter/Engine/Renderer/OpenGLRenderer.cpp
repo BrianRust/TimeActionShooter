@@ -353,24 +353,24 @@ void OpenGLRenderer::AddCubeToBuffer( const Vector3& minPosition, char cellType 
 }
 
 //---------------------
-void OpenGLRenderer::SendViewMatrix(const Camera& myCamera ) 
-{
-	glUseProgram(0);
-	glDisable(GL_TEXTURE_2D);
-	glPushMatrix();
-	gluPerspective(50.0, (16.f/9.f), 0.1, 1000.0);
-
-	glRotatef(-90.f, 1.f, 0.f, 0.f);
-	glRotatef(90.f, 0.f, 0.f, 1.f);
-
-	glRotatef(-(ConstantParameters::CONVERTING_TO_DEGREES * myCamera.m_cameraRoll), 1.f, 0.f, 0.f);
-	glRotatef(-(ConstantParameters::CONVERTING_TO_DEGREES * myCamera.m_cameraPitch), 0.f, 1.f, 0.f);
-	glRotatef(-(ConstantParameters::CONVERTING_TO_DEGREES * myCamera.m_cameraYaw), 0.f, 0.f, 1.f);
-
-	glTranslatef(-myCamera.m_cameraPosition.x, -myCamera.m_cameraPosition.y, -myCamera.m_cameraPosition.z);
-
-	glUniform3fv(m_cameraPosition, 1, &myCamera.m_cameraPosition.x);
-}
+// void OpenGLRenderer::SendViewMatrix(const Camera& myCamera ) 
+// {
+// 	glUseProgram(0);
+// 	glDisable(GL_TEXTURE_2D);
+// 	glPushMatrix();
+// 	gluPerspective(50.0, (16.f/9.f), 0.1, 1000.0);
+// 
+// 	glRotatef(-90.f, 1.f, 0.f, 0.f);
+// 	glRotatef(90.f, 0.f, 0.f, 1.f);
+// 
+// 	glRotatef(-(ConstantParameters::CONVERTING_TO_DEGREES * myCamera.m_cameraRoll), 1.f, 0.f, 0.f);
+// 	glRotatef(-(ConstantParameters::CONVERTING_TO_DEGREES * myCamera.m_cameraPitch), 0.f, 1.f, 0.f);
+// 	glRotatef(-(ConstantParameters::CONVERTING_TO_DEGREES * myCamera.m_cameraYaw), 0.f, 0.f, 1.f);
+// 
+// 	glTranslatef(-myCamera.m_cameraPosition.x, -myCamera.m_cameraPosition.y, -myCamera.m_cameraPosition.z);
+// 
+// 	glUniform3fv(m_cameraPosition, 1, &myCamera.m_cameraPosition.x);
+// }
 
 //---------------------
 void OpenGLRenderer::PopMatrix() 
@@ -470,34 +470,64 @@ void OpenGLRenderer::DrawTargetCellOutline(const Vector3& startPosition)
 }
 
 //-----------------------------------
-void OpenGLRenderer::SetModelViewProjectionMatrix(const Camera& camera)
+// void OpenGLRenderer::SetModelViewProjectionMatrix(const Camera& camera)
+// {
+// 	glUniform3fv(m_cameraPosition, 1, &camera.m_cameraPosition.x);
+// 	
+// 	MatrixStack multiplyMatrix;
+// 
+// 	m_modelviewProjectionStack.PushMatrix();
+// 	m_modelviewProjectionStack.SetToPerspectiveMatrix(90.f * ConstantParameters::CONVERTING_TO_RADIANS, (ConstantParameters::ASPECT_RATIO), 0.1f, 1000.f);
+// 
+// 	Matrix4x4& currentMatrix = m_modelviewProjectionStack.m_MatrixStack[m_modelviewProjectionStack.m_MatrixStack.size()-1];
+// 
+// 	multiplyMatrix.SetToRotationMatrixX(-1.f * ConstantParameters::NINETY_DEGREES_AS_RADIANS);
+// 	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
+// 
+// 	multiplyMatrix.SetToRotationMatrixZ(ConstantParameters::NINETY_DEGREES_AS_RADIANS);
+// 	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
+// 
+// 	multiplyMatrix.SetToRotationMatrixX(-1.f * camera.m_cameraRoll);
+// 	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
+// 
+// 	multiplyMatrix.SetToRotationMatrixY(-1.f * camera.m_cameraPitch);
+// 	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
+// 
+// 	multiplyMatrix.SetToRotationMatrixZ(-1.f * camera.m_cameraYaw);
+// 	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
+// 
+// 	multiplyMatrix.SetToTranslationMatrix(-camera.m_cameraPosition.x, -camera.m_cameraPosition.y, -camera.m_cameraPosition.z);
+// 	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
+// }
+
+//--------------------------------------
+void OpenGLRenderer::SetTranslationMatrix( const Camera2D& camera )
 {
-	glUniform3fv(m_cameraPosition, 1, &camera.m_cameraPosition.x);
-	
-	MatrixStack multiplyMatrix;
-
-	m_modelviewProjectionStack.PushMatrix();
-	m_modelviewProjectionStack.SetToPerspectiveMatrix(90.f * ConstantParameters::CONVERTING_TO_RADIANS, (ConstantParameters::ASPECT_RATIO), 0.1f, 1000.f);
-
-	Matrix4x4& currentMatrix = m_modelviewProjectionStack.m_MatrixStack[m_modelviewProjectionStack.m_MatrixStack.size()-1];
-
-	multiplyMatrix.SetToRotationMatrixX(-1.f * ConstantParameters::NINETY_DEGREES_AS_RADIANS);
-	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
-
-	multiplyMatrix.SetToRotationMatrixZ(ConstantParameters::NINETY_DEGREES_AS_RADIANS);
-	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
-
-	multiplyMatrix.SetToRotationMatrixX(-1.f * camera.m_cameraRoll);
-	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
-
-	multiplyMatrix.SetToRotationMatrixY(-1.f * camera.m_cameraPitch);
-	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
-
-	multiplyMatrix.SetToRotationMatrixZ(-1.f * camera.m_cameraYaw);
-	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
-
-	multiplyMatrix.SetToTranslationMatrix(-camera.m_cameraPosition.x, -camera.m_cameraPosition.y, -camera.m_cameraPosition.z);
-	currentMatrix = currentMatrix * multiplyMatrix.m_MatrixStack[multiplyMatrix.m_MatrixStack.size()-1];
+	glTranslatef(-camera.m_cameraCenter.x, -camera.m_cameraCenter.y, 0.f);
 }
 
+//--------------------------------------
+void OpenGLRenderer::SetOrthoMatrix( const Camera2D& camera ) 
+{
+	float CAMERA_X_MIN = ( camera.m_cameraCenter.x - ( camera.m_size.x * 0.5f ) );
+	float CAMERA_Y_MIN = ( camera.m_cameraCenter.y - ( camera.m_size.y * 0.5f ) );
+	float CAMERA_X_MAX = ( ( camera.m_size.x * 0.5f ) + camera.m_cameraCenter.x );
+	float CAMERA_Y_MAX = ( ( camera.m_size.y * 0.5f ) + camera.m_cameraCenter.y );
 
+	glOrtho( CAMERA_X_MIN, CAMERA_X_MAX, CAMERA_Y_MIN, CAMERA_Y_MAX, 0.f, 1.f );
+}
+
+//--------------------------------------
+void OpenGLRenderer::DrawTriangleFan( const Vector2& position, const RGBA& color, float radius, float segments )
+{
+	glBegin(GL_TRIANGLE_FAN);
+	{
+		glColor4f( color.r, color.g, color.b, color.a );
+		for( float index = 0.f; index <= segments; index++ ) 
+		{
+			const float t = 2.f * 3.14f * index / segments;
+			glVertex2f( ( position.x + sinf(t) * radius ), ( position.y + cosf(t) * radius ));
+		}
+	}
+	glEnd();
+}

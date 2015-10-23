@@ -10,9 +10,10 @@
 #include <vector>
 #include "../Engine/Math/MyMathFiles.hpp"
 #include "../Engine/Constants.hpp"
-#include "../Engine/Camera/Camera.hpp"
+#include "../Engine/Camera/Camera2D.hpp"
 #include "../Engine/Time/Time.hpp"
 #include "../Engine/Renderer/OpenGLRenderer.hpp"
+#include "Player.hpp"
 //#include "CubeCell.hpp"
 
 //-------------------------------------------------------------
@@ -25,7 +26,6 @@ public:
 	void UpdatePlayerFromInput( float deltaseconds );
 	void UpdateCameraFromInput( float deltaseconds );
 	void UpdateFromMouseInput();
-	void CheckForGimbleLock();
 	void Initialize();
 
 	void Update();
@@ -36,11 +36,13 @@ public:
 
 	bool m_isPaused;
 
-	Camera m_camera;
+	Camera2D m_camera;
 	OpenGLRenderer m_renderer;
 
 	float m_mousePositionXDifference;
 	float m_mousePositionZDifference;
+
+	Player m_player;
 };
 
 #endif //included_World
