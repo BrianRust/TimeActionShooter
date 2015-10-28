@@ -10,14 +10,21 @@ class Bullet
 {
 public:
 	Bullet();
-	void Update();
+	void Update(float deltaSeconds);
 	void Render();
 
+	void CheckAndKillIfOutOfBounds();
+	void UpdatePosition(float deltaSeconds);
+
 	Vector2 m_position;
+	Vector2 m_velocity;
 	AIShotType m_aiShotType;
 	bool m_isDead;
+	bool m_fromEnemy;
 
 	float m_bulletRadius;
+
+
 
 	RGBA m_bulletColor;
 };

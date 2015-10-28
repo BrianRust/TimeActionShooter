@@ -61,6 +61,9 @@ namespace ConstantParameters
 
 	const double TIME_BETWEEN_CA_STEPS = 0.05;
 
+	const float PLAYER_NORMAL_SPEED = 5.0f;
+	const float PLAYER_FOCUS_SPEED = 2.5f;
+
 	
 // 	const unsigned int PRODUCE_LIFE_THRESHOLD_LOWERBOUND_3D = 5;
 // 	const unsigned int PRODUCE_LIFE_THRESHOLD_UPPERBOUND_3D = 5;
@@ -86,7 +89,7 @@ enum PlayerShotPattern
 
 enum AIShotPattern
 {
-	AISHOTPATTERN_SINGLE,
+	AISHOTPATTERN_SINGLEDIRECT,
 	AISHOTPATTERN_INDIRECTSPREAD,
 	AISHOTPATTERN_SPREAD,
 	NUM_AISHOTPATTERNS

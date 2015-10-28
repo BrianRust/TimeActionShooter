@@ -7,7 +7,7 @@ static bool rightMouseButtonDown = false;
 World::World(  ) 
 	: m_mousePositionXDifference(0.f)
 	, m_mousePositionZDifference(0.f)
-	, m_isPaused(true)
+	, m_isPaused(false)
 	, m_player(Player())
 	, m_camera(Camera2D())
 	, m_renderer(OpenGLRenderer())
@@ -20,7 +20,7 @@ World::World(  )
 //----------------------------------------------------
 void World::Initialize() 
 {
-	
+	m_enemies.push_back(Enemy());
 }
 
 //----------------------------------------------------
@@ -97,46 +97,22 @@ void World::UpdatePlayerFromInput( float deltaSeconds )
 	
 	if (m_isKeyDown[ VK_LEFT ]) 
 	{
-		//m_camera.m_cameraYaw += deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
 	}
 
 	if (m_isKeyDown[ VK_RIGHT ]) 
 	{
-		//m_camera.m_cameraYaw -= deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
 	}
 
 	if (m_isKeyDown[ VK_UP ]) 
 	{
-		//m_camera.m_cameraPitch -= deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
 	}
 
 	if (m_isKeyDown[ VK_DOWN ]) 
 	{
-		//m_camera.m_cameraPitch += deltaSeconds * ConstantParameters::CAMERA_SPEED;
-	}
-
-	if (m_isKeyDown[ 'W' ]) 
-	{
-// 		m_camera.m_cameraPosition.x += cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-// 		m_camera.m_cameraPosition.y += sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-	}
-
-	if (m_isKeyDown[ 'D' ]) 
-	{
-// 		m_camera.m_cameraPosition.y -= cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-// 		m_camera.m_cameraPosition.x += sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-	}
-
-	if (m_isKeyDown[ 'S' ]) 
-	{
-// 		m_camera.m_cameraPosition.x -= cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-// 		m_camera.m_cameraPosition.y -= sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-	}
-
-	if (m_isKeyDown[ 'A' ]) 
-	{
-// 		m_camera.m_cameraPosition.y += cos(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
-// 		m_camera.m_cameraPosition.x -= sin(m_camera.m_cameraYaw) * deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
 	}
 
 	if (m_isKeyDown[ VK_SPACE ]) 
@@ -165,9 +141,37 @@ void World::Update()
 	UpdateCameraFromInput( deltaSeconds );
 	//UpdateFromMouseInput();
 
-	if (!m_isPaused) 
+	if ( !m_isPaused ) 
 	{
-		
+		for ( unsigned int index = 0; index < m_enemies.size(); index++ )
+		{
+			m_enemies[index].Update();
+
+			if ( m_enemies[index].m_readyToFire )
+			{
+				//firebullet
+				BeginEnemyShotPattern( m_enemies[index] );
+				m_enemies[index].m_lastShotTime = Time::GetCurrentTimeSeconds();
+				m_enemies[index].m_readyToFire = false;
+			}
+
+			if ( m_enemies[index].m_isDead )
+			{
+				m_enemies.erase( m_enemies.begin() + index );
+				index--;
+			}
+		}
+
+		for ( unsigned int index = 0; index < m_bullets.size(); index++ )
+		{
+			m_bullets[index].Update(deltaSeconds);
+
+			if ( m_bullets[index].m_isDead )
+			{
+				m_bullets.erase( m_bullets.begin() + index );
+				index--;
+			}
+		}
 	}
 }
 
@@ -187,7 +191,43 @@ void World::Render()
 
 	m_player.Render();
 
+	for (unsigned int index = 0; index < m_enemies.size(); index++)
+	{
+		m_enemies[index].Render();
+	}
+
+	for (unsigned int index = 0; index < m_bullets.size(); index++)
+	{
+		m_bullets[index].Render();
+	}
+
 	glPopMatrix();
 	//m_renderer.SendCubeVBO();
 	//m_renderer.PopMatrix();
 }
+
+//---------------------------------------------------
+void World::BeginEnemyShotPattern( const Enemy &firingEnemy )
+{
+	switch(firingEnemy.m_shotPattern)
+	{
+	case AISHOTPATTERN_SINGLEDIRECT:
+		SpawnBullet( true, firingEnemy.m_shotType, m_player.m_position, firingEnemy.m_position, Vector2(3.2f, 3.2f) );
+		break;
+	}
+}
+
+//---------------------------------------------------
+void World::SpawnBullet( bool FromEnemy, AIShotType enemyShotType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity )
+{
+	m_bullets.push_back(Bullet());
+
+	Bullet& newBullet = m_bullets[m_bullets.size()-1];
+
+	newBullet.m_fromEnemy = FromEnemy;
+	newBullet.m_aiShotType = enemyShotType;
+	newBullet.m_position = enemyPosition;
+	newBullet.m_velocity = initialVelocity * Normalize( playerPosition - enemyPosition );
+}
+
+

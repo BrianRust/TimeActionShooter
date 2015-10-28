@@ -14,6 +14,8 @@
 #include "../Engine/Time/Time.hpp"
 #include "../Engine/Renderer/OpenGLRenderer.hpp"
 #include "Player.hpp"
+#include "Enemy.hpp"
+#include "Bullet.hpp"
 //#include "CubeCell.hpp"
 
 //-------------------------------------------------------------
@@ -31,6 +33,9 @@ public:
 	void Update();
 	void Render();
 
+	void BeginEnemyShotPattern( const Enemy &firingEnemy );
+	void SpawnBullet( bool FromEnemy, AIShotType enemyShotType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity );
+
 	bool m_isKeyDown[ 256 ];
 	bool m_keyIsHeld;
 
@@ -43,6 +48,8 @@ public:
 	float m_mousePositionZDifference;
 
 	Player m_player;
+	std::vector<Enemy> m_enemies;
+	std::vector<Bullet> m_bullets;
 };
 
 #endif //included_World

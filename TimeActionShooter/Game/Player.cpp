@@ -3,7 +3,7 @@
 
 //------------------------------------------
 Player::Player()
-	: m_position(Vector2(0.f, 0.f))
+	: m_position(Vector2(0.f, -18.f))
 	, m_timeMeter(0.f)
 	, m_shotPower(0)
 	, m_shotPattern(PLAYERSHOTPATTERN_SINGLE)

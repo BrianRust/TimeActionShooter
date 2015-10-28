@@ -76,6 +76,14 @@ inline Vector2 operator * (const Vector2& first, float second)
 	return result;
 };
 
+inline Vector2 operator * (const Vector2& first, const Vector2& second)
+{
+	Vector2 result;
+	result.x = first.x * second.x;
+	result.y = first.y * second.y;
+	return result;
+};
+
 inline Vector2 operator / (const Vector2& first, float second)
 {
 	Vector2 result;
