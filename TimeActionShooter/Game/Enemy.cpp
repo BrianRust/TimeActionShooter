@@ -44,11 +44,26 @@ void Enemy::Update()
 //------------------------------------------
 void Enemy::Render()
 {
-	if (m_isDead) {
+	if (m_isDead) 
+	{
 		return;
 	}
 
 	const float triangleSegments = 30.f;
 
 	OpenGLRenderer::DrawTriangleFan( m_position, m_playerColor, m_playerRadius, triangleSegments );
+}
+
+//------------------------------------------
+bool Enemy::CheckCollision( const Vector2& entityPosition )
+{
+	float distanceBetweenPlayerAndEntity = VectorMagnitude( m_position - entityPosition );
+	if ( distanceBetweenPlayerAndEntity < m_playerRadius )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

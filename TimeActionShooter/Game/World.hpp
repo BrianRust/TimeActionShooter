@@ -33,7 +33,12 @@ public:
 	void Update();
 	void Render();
 
+	void CheckAndResolveCollisions();
+	void CheckAndResolveBulletCollisions();
+	void CheckAndResolvePlayerVsEnemyCollisions();
+
 	void BeginEnemyShotPattern( const Enemy &firingEnemy );
+	void FirePlayerBullets();
 	void SpawnBullet( bool FromEnemy, AIShotType enemyShotType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity );
 
 	bool m_isKeyDown[ 256 ];

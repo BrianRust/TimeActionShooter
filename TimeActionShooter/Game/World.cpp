@@ -117,7 +117,7 @@ void World::UpdatePlayerFromInput( float deltaSeconds )
 
 	if (m_isKeyDown[ VK_SPACE ]) 
 	{
-		//m_camera.m_cameraPosition.z += deltaSeconds * ConstantParameters::CAMERA_SPEED;
+		FirePlayerBullets();
 	}
 
 	if (m_isKeyDown[VK_CONTROL]) 
@@ -141,15 +141,18 @@ void World::Update()
 	UpdateCameraFromInput( deltaSeconds );
 	//UpdateFromMouseInput();
 
+	CheckAndResolveCollisions();
+
 	if ( !m_isPaused ) 
 	{
+		m_player.Update();
+
 		for ( unsigned int index = 0; index < m_enemies.size(); index++ )
 		{
 			m_enemies[index].Update();
 
 			if ( m_enemies[index].m_readyToFire )
 			{
-				//firebullet
 				BeginEnemyShotPattern( m_enemies[index] );
 				m_enemies[index].m_lastShotTime = Time::GetCurrentTimeSeconds();
 				m_enemies[index].m_readyToFire = false;
@@ -227,7 +230,86 @@ void World::SpawnBullet( bool FromEnemy, AIShotType enemyShotType, Vector2 playe
 	newBullet.m_fromEnemy = FromEnemy;
 	newBullet.m_aiShotType = enemyShotType;
 	newBullet.m_position = enemyPosition;
-	newBullet.m_velocity = initialVelocity * Normalize( playerPosition - enemyPosition );
+
+	if ( FromEnemy )
+	{
+		newBullet.m_velocity = initialVelocity * Normalize( playerPosition - enemyPosition );
+	}
+	else
+	{
+		newBullet.m_velocity = initialVelocity;
+	}
+	
 }
 
+//--------------------------------------------------
+void World::CheckAndResolveCollisions()
+{
+	CheckAndResolveBulletCollisions();
+	CheckAndResolvePlayerVsEnemyCollisions();
+}
+
+//--------------------------------------------------
+void World::CheckAndResolveBulletCollisions()
+{
+	m_player.m_isGrazing = false;
+
+	for (unsigned int bulletIndex = 0; bulletIndex < m_bullets.size(); bulletIndex++)
+	{
+		if ( m_bullets[bulletIndex].m_isDead )
+		{
+			continue;
+		}
+
+		if ( m_bullets[bulletIndex].m_fromEnemy )
+		{
+			if ( m_player.CheckCollision( m_bullets[bulletIndex].m_position ) )
+			{
+				m_player.m_isDead = true;
+				m_bullets[bulletIndex].m_isDead = true;
+			}
+		}
+		else
+		{
+			for (unsigned int enemyIndex = 0; enemyIndex < m_enemies.size(); enemyIndex++)
+			{
+				if ( m_bullets[bulletIndex].m_isDead )
+				{
+					break;
+				}
+				
+				if ( m_enemies[enemyIndex].m_isDead )
+				{
+					continue;
+				}
+
+				if ( m_enemies[enemyIndex].CheckCollision( m_bullets[bulletIndex].m_position ) )
+				{
+					//m_enemies[enemyIndex].m_isDead = true;
+					m_bullets[bulletIndex].m_isDead = true;
+				}
+			}
+		}
+	}
+}
+
+//--------------------------------------------------
+void World::CheckAndResolvePlayerVsEnemyCollisions()
+{
+
+
+
+}
+
+//--------------------------------------------------
+void World::FirePlayerBullets()
+{
+	if ( m_player.m_readyToFire )
+	{
+		SpawnBullet( false, AISHOTTYPE_NORMAL, m_player.m_position, m_player.m_position, Vector2(0.f, 18.f));
+		
+		m_player.m_lastShotTime = Time::GetCurrentTimeSeconds();
+		m_player.m_readyToFire = false;
+	}
+}
 

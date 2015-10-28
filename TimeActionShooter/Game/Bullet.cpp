@@ -59,11 +59,20 @@ void Bullet::UpdatePosition(float deltaSeconds)
 //------------------------------------------
 void Bullet::Render()
 {
-	if (m_isDead) {
+	if (m_isDead) 
+	{
 		return;
 	}
 
 	const float triangleSegments = 30.f;
 
-	OpenGLRenderer::DrawTriangleFan( m_position, m_bulletColor, m_bulletRadius, triangleSegments );
+	if (m_fromEnemy)
+	{
+		OpenGLRenderer::DrawTriangleFan( m_position, m_bulletColor, m_bulletRadius, triangleSegments );
+	}
+	else
+	{
+		OpenGLRenderer::DrawTriangleFan( m_position, RGBA(0.5f, 0.f, 0.5f, 1.f), m_bulletRadius, triangleSegments );
+	}
+	
 }

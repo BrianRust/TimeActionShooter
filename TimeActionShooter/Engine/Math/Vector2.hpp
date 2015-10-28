@@ -18,6 +18,11 @@ public:
 	float y;
 };
 
+inline float VectorMagnitude(const Vector2& first)
+{
+	return sqrt( (first.x * first.x) + (first.y * first.y) );
+}
+
 inline Vector2 Normalize(const Vector2& first)
 {
 	Vector2 result;

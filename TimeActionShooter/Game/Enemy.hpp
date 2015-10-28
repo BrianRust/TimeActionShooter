@@ -13,6 +13,8 @@ public:
 	void Update();
 	void Render();
 
+	bool CheckCollision( const Vector2& entityPosition );
+
 	Vector2 m_position;
 	AIShotPattern m_shotPattern;
 	AIShotType m_shotType;
