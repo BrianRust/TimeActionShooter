@@ -1,5 +1,8 @@
 #include "World.hpp"
 
+#include <Xinput.h>
+#pragma comment( lib, "xinput" ) // Link in the xinput.lib static library
+
 static bool leftMouseButtonDown = false;
 static bool rightMouseButtonDown = false;
 
@@ -117,7 +120,7 @@ void World::UpdatePlayerFromInput( float deltaSeconds )
 
 	if (m_isKeyDown[ VK_SPACE ]) 
 	{
-		FirePlayerBullets();
+		FirePlayerBullets(deltaSeconds);
 	}
 
 	if (m_isKeyDown[VK_CONTROL]) 
@@ -137,6 +140,7 @@ void World::Update()
 	float currentTime = (float) Time::GetCurrentTimeSeconds();
 	float deltaSeconds = ConstantParameters::DELTA_SECONDS; // Hack: assume 60 FPS
 
+	UpdatePlayerFromController( deltaSeconds );
 	UpdatePlayerFromInput( deltaSeconds );
 	UpdateCameraFromInput( deltaSeconds );
 	//UpdateFromMouseInput();
@@ -149,11 +153,11 @@ void World::Update()
 
 		for ( unsigned int index = 0; index < m_enemies.size(); index++ )
 		{
-			m_enemies[index].Update();
+			m_enemies[index].Update(deltaSeconds);
 
 			if ( m_enemies[index].m_readyToFire )
 			{
-				BeginEnemyShotPattern( m_enemies[index] );
+				BeginEnemyShotPattern( m_enemies[index], deltaSeconds);
 				m_enemies[index].m_lastShotTime = Time::GetCurrentTimeSeconds();
 				m_enemies[index].m_readyToFire = false;
 			}
@@ -210,30 +214,52 @@ void World::Render()
 }
 
 //---------------------------------------------------
-void World::BeginEnemyShotPattern( const Enemy &firingEnemy )
+void World::BeginEnemyShotPattern( const Enemy &firingEnemy, float deltaSeconds )
 {
 	switch(firingEnemy.m_shotPattern)
 	{
 	case AISHOTPATTERN_SINGLEDIRECT:
-		SpawnBullet( true, firingEnemy.m_shotType, m_player.m_position, firingEnemy.m_position, Vector2(3.2f, 3.2f) );
+		SpawnBullet( true, true, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, firingEnemy.m_shotSpeed), deltaSeconds );
+		break;
+	case AISHOTPATTERN_SPREAD:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed, -firingEnemy.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, -firingEnemy.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, -firingEnemy.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed * 0.5f, -firingEnemy.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed * 0.5f, -firingEnemy.m_shotSpeed), deltaSeconds );
+		break;
+	case AISHOTPATTERN_HORIZONTAL:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, 0.f), deltaSeconds );
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed, 0.f), deltaSeconds );
+		break;
+	case AISHOTPATTERN_VERTICAL:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, firingEnemy.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, -firingEnemy.m_shotSpeed), deltaSeconds );
 		break;
 	}
 }
 
 //---------------------------------------------------
-void World::SpawnBullet( bool FromEnemy, AIShotType enemyShotType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity )
+void World::SpawnBullet( bool FromEnemy, bool IsDirect, BulletType bulletType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity, float deltaSeconds )
 {
 	m_bullets.push_back(Bullet());
 
 	Bullet& newBullet = m_bullets[m_bullets.size()-1];
 
 	newBullet.m_fromEnemy = FromEnemy;
-	newBullet.m_aiShotType = enemyShotType;
+	newBullet.m_bulletType = bulletType;
 	newBullet.m_position = enemyPosition;
 
 	if ( FromEnemy )
 	{
-		newBullet.m_velocity = initialVelocity * Normalize( playerPosition - enemyPosition );
+		if (IsDirect)
+		{
+			newBullet.m_velocity = initialVelocity * Normalize( playerPosition - enemyPosition );
+		}
+		else 
+		{
+			newBullet.m_velocity = initialVelocity;
+		}
 	}
 	else
 	{
@@ -302,14 +328,47 @@ void World::CheckAndResolvePlayerVsEnemyCollisions()
 }
 
 //--------------------------------------------------
-void World::FirePlayerBullets()
+void World::FirePlayerBullets( float deltaSeconds )
 {
 	if ( m_player.m_readyToFire )
 	{
-		SpawnBullet( false, AISHOTTYPE_NORMAL, m_player.m_position, m_player.m_position, Vector2(0.f, 18.f));
+		SpawnBullet( false, false, BULLETTYPE_NORMAL, m_player.m_position, m_player.m_position, Vector2(0.f, 72.f), deltaSeconds);
 		
 		m_player.m_lastShotTime = Time::GetCurrentTimeSeconds();
 		m_player.m_readyToFire = false;
 	}
 }
 
+//----------------------------------------------------
+void World::UpdatePlayerFromController( float deltaSeconds )
+{
+	XINPUT_STATE xboxControllerState;
+	DWORD errorStatus = XInputGetState( 0, &xboxControllerState );
+	if( errorStatus == ERROR_SUCCESS )
+	{
+		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0) && !m_isKeyDown[ VK_LEFT ] ) 
+		{
+			m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		}
+
+		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0) && !m_isKeyDown[ VK_RIGHT ] ) 
+		{
+			m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		}
+
+		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0) && !m_isKeyDown[ VK_UP ] ) 
+		{
+			m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		}
+
+		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0) && !m_isKeyDown[ VK_DOWN ] ) 
+		{
+			m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		}
+
+		if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)
+		{
+			FirePlayerBullets(deltaSeconds);
+		}
+	}
+}

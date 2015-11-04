@@ -10,21 +10,27 @@ class Enemy
 {
 public:
 	Enemy();
-	void Update();
+	void Update(float deltaSeconds);
 	void Render();
+
+	void UpdatePosition(float deltaSeconds);
 
 	bool CheckCollision( const Vector2& entityPosition );
 
 	Vector2 m_position;
+	Vector2 m_velocity;
 	AIShotPattern m_shotPattern;
-	AIShotType m_shotType;
+	BulletType m_bulletType;
 	bool m_isDead;
 
 	float m_playerRadius;
 	float m_playerHitBoxRadius;
 	float m_playerGrazeRadius;
 
-	double m_timeTillFirstShot;
+	float m_health;
+
+	float m_shotSpeed;
+
 	double m_delayTillNextShot;
 	double m_lastShotTime;
 

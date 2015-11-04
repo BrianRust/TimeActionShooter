@@ -18,7 +18,7 @@ public:
 
 	Vector2 m_position;
 	Vector2 m_velocity;
-	AIShotType m_aiShotType;
+	BulletType m_bulletType;
 	bool m_isDead;
 	bool m_fromEnemy;
 

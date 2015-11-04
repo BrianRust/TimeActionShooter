@@ -26,6 +26,9 @@
     <Filter Include="Engine\Time">
       <UniqueIdentifier>{6039d7e1-8552-42a6-adf6-41e44038dec5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Controller">
+      <UniqueIdentifier>{8d0e7df8-df72-4ad7-b527-f6103798e8d1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\World.cpp">
@@ -54,6 +57,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Camera\Camera2D.cpp">
       <Filter>Engine\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Controller\XBoxController.cpp">
+      <Filter>Engine\Controller</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +119,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Camera\Camera2D.hpp">
       <Filter>Engine\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Controller\XBoxController.hpp">
+      <Filter>Engine\Controller</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

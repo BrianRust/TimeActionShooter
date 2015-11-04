@@ -11,7 +11,7 @@ const float OUT_OF_BOUNDS_WEST = -34.f;
 Bullet::Bullet()
 	: m_position(Vector2(0.f, 0.f))
 	, m_velocity(Vector2(0.f, 0.f))
-	, m_aiShotType(AISHOTTYPE_NORMAL)
+	, m_bulletType(BULLETTYPE_NORMAL)
 	, m_isDead(false)
 	, m_bulletRadius(0.25f)
 	, m_bulletColor(RGBA(0.f, 0.f, 0.f, 1.f))
