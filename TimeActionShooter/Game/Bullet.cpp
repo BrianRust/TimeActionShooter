@@ -54,6 +54,14 @@ void Bullet::CheckAndKillIfOutOfBounds()
 void Bullet::UpdatePosition(float deltaSeconds)
 {
 	m_position = m_position + ( m_velocity * deltaSeconds );
+
+	if ( m_bulletType == BULLETTYPE_DRAG )
+	{
+		if (VectorMagnitude(m_velocity) > 2.f)
+		{
+			m_velocity = m_velocity * 0.99f;
+		}
+	}
 }
 
 //------------------------------------------

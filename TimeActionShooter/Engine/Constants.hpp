@@ -20,8 +20,8 @@ namespace ConstantParameters
 	const float ASPECT_RATIO = 16.f/9.f;
 	const float INVERSE_ASPECT_RATIO = 9.f/16.f;
 
-	const float PLAYER_NORMAL_SPEED = 5.0f;
-	const float PLAYER_FOCUS_SPEED = 2.5f;
+	const float PLAYER_NORMAL_SPEED = 12.f;
+	const float PLAYER_FOCUS_SPEED = 5.f;
 
 	const float PLAYER_Y_AXIS_LIMIT = 17.f;
 	const float PLAYER_X_AXIS_LIMIT = 31.f;
