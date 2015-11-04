@@ -24,6 +24,14 @@ World::World(  )
 void World::Initialize() 
 {
 	m_enemies.push_back(Enemy());
+
+	m_enemies.push_back(Enemy());
+	m_enemies[m_enemies.size()-1].m_position = Vector2(30.f, 10.f);
+	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+
+	m_enemies.push_back(Enemy());
+	m_enemies[m_enemies.size()-1].m_position = Vector2(-30.f, -13.f);
+	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
 }
 
 //----------------------------------------------------
@@ -98,24 +106,36 @@ void World::UpdatePlayerFromInput( float deltaSeconds )
 		m_isPaused = !m_isPaused;
 	}
 	
-	if (m_isKeyDown[ VK_LEFT ]) 
+	if (m_isKeyDown[ VK_LEFT ] && !m_player.m_isDead) 
 	{
-		m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
+		{
+			m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		}
 	}
 
-	if (m_isKeyDown[ VK_RIGHT ]) 
+	if (m_isKeyDown[ VK_RIGHT ] && !m_player.m_isDead) 
 	{
-		m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
+		{
+			m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		}
 	}
 
-	if (m_isKeyDown[ VK_UP ]) 
+	if (m_isKeyDown[ VK_UP ] && !m_player.m_isDead) 
 	{
-		m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+		{
+			m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		}
 	}
 
-	if (m_isKeyDown[ VK_DOWN ]) 
+	if (m_isKeyDown[ VK_DOWN ] && !m_player.m_isDead) 
 	{
-		m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+		{
+			m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+		}
 	}
 
 	if (m_isKeyDown[ VK_SPACE ]) 
@@ -312,6 +332,7 @@ void World::CheckAndResolveBulletCollisions()
 				if ( m_enemies[enemyIndex].CheckCollision( m_bullets[bulletIndex].m_position ) )
 				{
 					//m_enemies[enemyIndex].m_isDead = true;
+					m_enemies[enemyIndex].m_health -= 1.f;
 					m_bullets[bulletIndex].m_isDead = true;
 				}
 			}
@@ -348,22 +369,34 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 	{
 		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0) && !m_isKeyDown[ VK_LEFT ] ) 
 		{
-			m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
+			{
+				m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			}
 		}
 
 		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0) && !m_isKeyDown[ VK_RIGHT ] ) 
 		{
-			m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
+			{
+				m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			}
 		}
 
 		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0) && !m_isKeyDown[ VK_UP ] ) 
 		{
-			m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+			{
+				m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			}
 		}
 
 		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0) && !m_isKeyDown[ VK_DOWN ] ) 
 		{
-			m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+			{
+				m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			}
 		}
 
 		if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)

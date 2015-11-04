@@ -54,6 +54,29 @@ void Enemy::Render()
 	const float triangleSegments = 30.f;
 
 	OpenGLRenderer::DrawTriangleFan( m_position, m_playerColor, m_playerRadius, triangleSegments );
+
+	Vector2 position1 = m_position;
+	Vector2 position2 = m_position;
+	Vector2 position3 = m_position;
+	Vector2 position4 = m_position;
+	position1.x -= 1.5f;
+	position1.y += 2.2f;
+	position2.x -= 1.5f;
+	position2.y += 1.8f;
+	position3.x += 1.5f;
+	position3.y += 1.8f;
+	position4.x += 1.5f;
+	position4.y += 2.2f;
+
+	OpenGLRenderer::DrawQuad( position1, position2, position3, position4, RGBA(1.f, 0.f, 0.f, 1.f) );
+
+	float lifeRatio = m_health * 0.01f;
+	lifeRatio *= 3.f;
+
+	position3.x = position1.x + lifeRatio;
+	position4.x = position1.x + lifeRatio;
+
+	OpenGLRenderer::DrawQuad( position1, position2, position3, position4, RGBA(0.f, 1.f, 0.f, 1.f) );
 }
 
 //------------------------------------------

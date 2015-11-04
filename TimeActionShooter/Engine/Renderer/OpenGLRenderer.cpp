@@ -265,11 +265,6 @@ void OpenGLRenderer::Initialize()
 
 	glGenBuffers(1, &m_blockVBOid);
 	isInitializing = true;
-
-	const int NUM_VERTS_PER_BLOCK = 24;
-
-	m_blockVertices.reserve( ConstantParameters::TOTAL_BLOCKS_IN_ZONE * NUM_VERTS_PER_BLOCK * ( ConstantParameters::SOLID_BLOCK_PERCENTAGE_3D / 1000 ) );
-
 	glUseProgram(m_shaderProgramID);
 }
 
@@ -528,6 +523,34 @@ void OpenGLRenderer::DrawTriangleFan( const Vector2& position, const RGBA& color
 			const float t = 2.f * 3.14f * index / segments;
 			glVertex2f( ( position.x + sinf(t) * radius ), ( position.y + cosf(t) * radius ));
 		}
+	}
+	glEnd();
+}
+
+
+//--------------------------------------
+void OpenGLRenderer::DrawQuad( const Vector2& position1, const Vector2& position2, const Vector2& position3, const Vector2& position4, const RGBA& color )
+{
+	Vector2 xAndYMin;
+	Vector2 xAndYMax;
+
+	glBegin(GL_TRIANGLES);
+	{
+		glColor4f( color.r, color.g, color.b, color.a);
+
+		//glTexCoord2f(0.f, 1.f);
+		glVertex2d( position1.x, position1.y );
+		//glTexCoord2f(0.f, 0.f);
+		glVertex2d( position2.x, position2.y );
+		//glTexCoord2f(1.f, 0.f);
+		glVertex2d( position3.x, position3.y );
+
+		//glTexCoord2f(1.f, 0.f);
+		glVertex2d( position3.x, position3.y );
+		//glTexCoord2f(1.f, 1.f);
+		glVertex2d( position4.x, position4.y );
+		//glTexCoord2f(0.f, 1.f);
+		glVertex2d( position1.x, position1.y );
 	}
 	glEnd();
 }
