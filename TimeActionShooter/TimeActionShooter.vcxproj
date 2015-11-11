@@ -85,6 +85,7 @@
     <ClCompile Include="Engine\Time\Time.cpp" />
     <ClCompile Include="Game\Bullet.cpp" />
     <ClCompile Include="Game\Enemy.cpp" />
+    <ClCompile Include="Game\GameState.cpp" />
     <ClCompile Include="Game\Player.cpp" />
     <ClCompile Include="Game\World.cpp" />
   </ItemGroup>
@@ -107,6 +108,7 @@
     <ClInclude Include="Engine\Time\Time.hpp" />
     <ClInclude Include="Game\Bullet.hpp" />
     <ClInclude Include="Game\Enemy.hpp" />
+    <ClInclude Include="Game\GameState.hpp" />
     <ClInclude Include="Game\Player.hpp" />
     <ClInclude Include="Game\World.hpp" />
   </ItemGroup>

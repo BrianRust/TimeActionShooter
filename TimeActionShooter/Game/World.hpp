@@ -16,7 +16,7 @@
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Bullet.hpp"
-//#include "CubeCell.hpp"
+#include "GameState.hpp"
 
 //-------------------------------------------------------------
 class World
@@ -33,6 +33,8 @@ public:
 
 	void Update();
 	void UpdatePauseTimers();
+	void UpdateGameStateBuffer();
+	void LoadGameState( unsigned int index );
 	void Render();
 
 	void CheckAndResolveCollisions();
@@ -50,6 +52,9 @@ public:
 
 	bool m_isPaused;
 	double m_lastPauseTimer;
+	double m_lastGameStateSwitch;
+
+	double m_lastGameStateUpdate;
 
 	Camera2D m_camera;
 	OpenGLRenderer m_renderer;
@@ -60,6 +65,7 @@ public:
 	Player m_player;
 	std::vector<Enemy> m_enemies;
 	std::vector<Bullet> m_bullets;
+	std::vector<GameState> m_gameStateBuffer;
 };
 
 #endif //included_World

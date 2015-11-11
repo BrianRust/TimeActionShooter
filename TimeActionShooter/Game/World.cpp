@@ -17,6 +17,8 @@ World::World(  )
 	, m_keyIsHeld(false)
 	, m_isButtonHeld(false)
 	, m_lastPauseTimer(0.0)
+	, m_lastGameStateUpdate(0.0)
+	, m_lastGameStateSwitch(0.0)
 {
 	srand ((unsigned int)(time(NULL)));
 }
@@ -39,6 +41,8 @@ void World::Initialize()
 	m_enemies.push_back(Enemy());
 	m_enemies[m_enemies.size()-1].m_position = Vector2(-27.f, -10.f);
 	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+
+	UpdateGameStateBuffer();
 }
 
 //----------------------------------------------------
@@ -195,7 +199,6 @@ void World::Update()
 	UpdatePlayerFromController( deltaSeconds );
 	UpdatePlayerFromInput( deltaSeconds );
 	UpdateCameraFromInput( deltaSeconds );
-	//UpdateFromMouseInput();
 
 	CheckAndResolveCollisions();
 
@@ -230,6 +233,11 @@ void World::Update()
 				m_bullets.erase( m_bullets.begin() + index );
 				index--;
 			}
+		}
+
+		if ( (currentTime - m_lastGameStateUpdate) >= ConstantParameters::GAMESTATE_UPDATE_RATE )
+		{
+			UpdateGameStateBuffer();
 		}
 	}
 }
@@ -485,6 +493,15 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 					}
 				}
 			}
+			else
+			{
+				double currentTime = Time::GetCurrentTimeSeconds();
+				if ( ( currentTime - m_lastGameStateSwitch ) >= ConstantParameters::GAMESTATE_REWIND_RATE )
+				{
+					LoadGameState( m_gameStateBuffer.size()-1 );
+					m_lastGameStateSwitch = Time::GetCurrentTimeSeconds();
+				}
+			}
 		}
 
 		if( (xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0 )
@@ -523,11 +540,48 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 void World::UpdatePauseTimers()
 {
 	double currentTime = Time::GetCurrentTimeSeconds();
-	double timePaused;
+	double timePaused = currentTime - m_lastPauseTimer;
+	m_lastGameStateUpdate += timePaused;
+
 	for ( unsigned int index = 0; index < m_enemies.size(); index++ )
 	{
 		currentTime = Time::GetCurrentTimeSeconds();
 		timePaused = currentTime - m_lastPauseTimer;
 		m_enemies[index].m_lastShotTime += timePaused;
+	}
+}
+
+//-----------------------------------------------------
+void World::UpdateGameStateBuffer()
+{
+	m_gameStateBuffer.push_back(GameState(m_player, m_enemies, m_bullets));
+	m_lastGameStateUpdate = Time::GetCurrentTimeSeconds();
+
+	while ( m_gameStateBuffer.size() > ConstantParameters::GAMESTATE_BUFFER_SIZE )
+	{
+		m_gameStateBuffer.erase( m_gameStateBuffer.begin() );
+	}
+}
+
+//-----------------------------------------------------
+void World::LoadGameState( unsigned int index )
+{
+	if ( m_gameStateBuffer.size() <= index )
+	{
+		return;
+	}
+
+	m_player = m_gameStateBuffer[index].m_player;
+	m_bullets = m_gameStateBuffer[index].m_bullets;
+	m_enemies = m_gameStateBuffer[index].m_enemies;
+
+	m_gameStateBuffer.erase( m_gameStateBuffer.begin()+index, m_gameStateBuffer.end() );
+
+	for ( unsigned int bufferIndex = 0; bufferIndex < m_gameStateBuffer.size(); bufferIndex++ )
+	{
+		for ( unsigned int index = 0; index < m_gameStateBuffer[bufferIndex].m_enemies.size(); index++ )
+		{
+			m_gameStateBuffer[bufferIndex].m_enemies[index].m_lastShotTime += ConstantParameters::GAMESTATE_UPDATE_RATE;
+		}
 	}
 }
