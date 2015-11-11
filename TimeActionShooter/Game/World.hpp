@@ -37,6 +37,8 @@ public:
 	void LoadGameState( unsigned int index );
 	void Render();
 
+	void RenderTimeMeter();
+
 	void CheckAndResolveCollisions();
 	void CheckAndResolveBulletCollisions();
 	void CheckAndResolvePlayerVsEnemyCollisions();
@@ -63,6 +65,7 @@ public:
 	float m_mousePositionZDifference;
 
 	Player m_player;
+	float m_timeMeter;
 	std::vector<Enemy> m_enemies;
 	std::vector<Bullet> m_bullets;
 	std::vector<GameState> m_gameStateBuffer;

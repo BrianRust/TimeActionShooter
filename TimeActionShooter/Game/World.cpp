@@ -19,6 +19,7 @@ World::World(  )
 	, m_lastPauseTimer(0.0)
 	, m_lastGameStateUpdate(0.0)
 	, m_lastGameStateSwitch(0.0)
+	, m_timeMeter(100.f)
 {
 	srand ((unsigned int)(time(NULL)));
 }
@@ -244,9 +245,7 @@ void World::Update()
 
 //----------------------------------------------------
 void World::Render() 
-{	
-	//m_renderer.SetModelViewProjectionMatrix(m_camera);
-
+{
 	glUseProgram(0);
 	glDisable(GL_TEXTURE_2D);
 	glDisable( GL_CULL_FACE );
@@ -268,9 +267,9 @@ void World::Render()
 		m_bullets[index].Render();
 	}
 
+	RenderTimeMeter();
+
 	glPopMatrix();
-	//m_renderer.SendCubeVBO();
-	//m_renderer.PopMatrix();
 }
 
 //---------------------------------------------------
@@ -584,4 +583,30 @@ void World::LoadGameState( unsigned int index )
 			m_gameStateBuffer[bufferIndex].m_enemies[index].m_lastShotTime += ConstantParameters::GAMESTATE_UPDATE_RATE;
 		}
 	}
+
+	m_timeMeter -= ConstantParameters::GAMESTATE_UPDATE_RATE;
+}
+
+//----------------------------------------------------
+void World::RenderTimeMeter()
+{
+	if (m_timeMeter <= 0.f)
+	{
+		return;
+	}
+
+	Vector2 position1 = Vector2(20.f, 17.f);
+	Vector2 position2 = Vector2(20.f, 16.f);
+	Vector2 position3 = Vector2(28.f, 16.f);
+	Vector2 position4 = Vector2(28.f, 17.f);
+
+	OpenGLRenderer::DrawQuad( position1, position2, position3, position4, RGBA(0.f, 0.f, 0.f, 1.f) );
+
+	float timeRatio = m_timeMeter * 0.01f;
+	timeRatio *= 8.f;
+
+	position3.x = position1.x + timeRatio;
+	position4.x = position1.x + timeRatio;
+
+	OpenGLRenderer::DrawQuad( position1, position2, position3, position4, RGBA(0.f, 0.f, 1.f, 1.f) );
 }

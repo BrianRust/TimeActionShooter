@@ -26,9 +26,11 @@ namespace ConstantParameters
 	const float PLAYER_Y_AXIS_LIMIT = 17.f;
 	const float PLAYER_X_AXIS_LIMIT = 31.f;
 
-	const unsigned int GAMESTATE_BUFFER_SIZE = 201;
+	const unsigned int GAMESTATE_BUFFER_SIZE = 601;
 	const double GAMESTATE_UPDATE_RATE = 0.05;
-	const double GAMESTATE_REWIND_RATE = 0.25;
+	const double GAMESTATE_REWIND_RATE = 0.05;
+
+	const float TIMEMETER_DRAIN = 0.05f;
 }
 
 enum PlayerShotPattern
