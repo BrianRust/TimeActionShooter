@@ -15,9 +15,10 @@ World::World(  )
 	, m_camera(Camera2D())
 	, m_renderer(OpenGLRenderer())
 	, m_keyIsHeld(false)
+	, m_isButtonHeld(false)
+	, m_lastPauseTimer(0.0)
 {
 	srand ((unsigned int)(time(NULL)));
-
 }
 
 //----------------------------------------------------
@@ -109,44 +110,69 @@ void World::UpdatePlayerFromInput( float deltaSeconds )
 	if ( m_isKeyDown[ 'P' ] && !m_keyIsHeld ) 
 	{
 		m_keyIsHeld = true;
+
+		if ( m_isPaused )
+		{
+			UpdatePauseTimers();
+		}
+		else
+		{
+			m_lastPauseTimer = Time::GetCurrentTimeSeconds();
+		}
+
 		m_isPaused = !m_isPaused;
 	}
 	
 	if (m_isKeyDown[ VK_LEFT ] && !m_player.m_isDead) 
 	{
-		if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
+		if ( !m_isPaused )
 		{
-			m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
+			{
+				m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			}
 		}
 	}
 
 	if (m_isKeyDown[ VK_RIGHT ] && !m_player.m_isDead) 
 	{
-		if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
+		if ( !m_isPaused )
 		{
-			m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
+			{
+				m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			}
 		}
 	}
 
 	if (m_isKeyDown[ VK_UP ] && !m_player.m_isDead) 
 	{
-		if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+		if ( !m_isPaused )
 		{
-			m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+			{
+				m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			}
 		}
 	}
 
 	if (m_isKeyDown[ VK_DOWN ] && !m_player.m_isDead) 
 	{
-		if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+		if ( !m_isPaused )
 		{
-			m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+			{
+				m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+			}
 		}
 	}
 
 	if (m_isKeyDown[ VK_SPACE ]) 
 	{
-		FirePlayerBullets(deltaSeconds);
+		if ( !m_isPaused )
+		{
+			FirePlayerBullets(deltaSeconds);
+		}
 	}
 
 	if (m_isKeyDown[VK_CONTROL]) 
@@ -379,79 +405,129 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 	{
 		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0) && !m_isKeyDown[ VK_LEFT ] ) 
 		{
-			if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+			if ( !m_isPaused )
 			{
-				if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
+				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
 				{
-					m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_FOCUS_SPEED;
+					if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
+					{
+						m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_FOCUS_SPEED;
+					}
 				}
-			}
-			else
-			{
-				if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
+				else
 				{
-					m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+					if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
+					{
+						m_player.m_position.x -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+					}
 				}
 			}
 		}
 
 		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0) && !m_isKeyDown[ VK_RIGHT ] ) 
 		{
-			if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+			if ( !m_isPaused )
 			{
-				if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
+				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
 				{
-					m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_FOCUS_SPEED;
+					if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
+					{
+						m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_FOCUS_SPEED;
+					}
 				}
-			}
-			else
-			{
-				if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
+				else
 				{
-					m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+					if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
+					{
+						m_player.m_position.x += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+					}
 				}
 			}
 		}
 
 		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0) && !m_isKeyDown[ VK_UP ] ) 
 		{
-			if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+			if ( !m_isPaused )
 			{
-				if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
 				{
-					m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_FOCUS_SPEED;
+					if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+					{
+						m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_FOCUS_SPEED;
+					}
 				}
-			}
-			else
-			{
-				if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+				else
 				{
-					m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+					if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+					{
+						m_player.m_position.y += deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+					}
 				}
 			}
 		}
 
 		if ( ((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0) && !m_isKeyDown[ VK_DOWN ] ) 
 		{
-			if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+			if ( !m_isPaused )
 			{
-				if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
 				{
-					m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_FOCUS_SPEED;
+					if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+					{
+						m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_FOCUS_SPEED;
+					}
 				}
-			}
-			else
-			{
-				if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+				else
 				{
-					m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+					if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
+					{
+						m_player.m_position.y -= deltaSeconds * ConstantParameters::PLAYER_NORMAL_SPEED;
+					}
 				}
 			}
 		}
 
-		if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)
+		if( (xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0 )
 		{
-			FirePlayerBullets(deltaSeconds);
+			if ( !m_isPaused )
+			{
+				FirePlayerBullets(deltaSeconds);
+			}
 		}
+
+		if ( (xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_START) != 0 )
+		{
+			if ( !m_isButtonHeld )
+			{
+				if ( m_isPaused )
+				{
+					UpdatePauseTimers();
+				}
+				else
+				{
+					m_lastPauseTimer = Time::GetCurrentTimeSeconds();
+				}
+
+				m_isPaused = !m_isPaused;
+				m_isButtonHeld = true;
+			}
+		}
+		else
+		{
+			m_isButtonHeld = false;
+		}
+	}
+}
+
+//----------------------------------------------------
+void World::UpdatePauseTimers()
+{
+	double currentTime = Time::GetCurrentTimeSeconds();
+	double timePaused;
+	for ( unsigned int index = 0; index < m_enemies.size(); index++ )
+	{
+		currentTime = Time::GetCurrentTimeSeconds();
+		timePaused = currentTime - m_lastPauseTimer;
+		m_enemies[index].m_lastShotTime += timePaused;
 	}
 }

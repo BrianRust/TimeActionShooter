@@ -32,6 +32,7 @@ public:
 	void Initialize();
 
 	void Update();
+	void UpdatePauseTimers();
 	void Render();
 
 	void CheckAndResolveCollisions();
@@ -45,7 +46,10 @@ public:
 	bool m_isKeyDown[ 256 ];
 	bool m_keyIsHeld;
 
+	bool m_isButtonHeld;
+
 	bool m_isPaused;
+	double m_lastPauseTimer;
 
 	Camera2D m_camera;
 	OpenGLRenderer m_renderer;
