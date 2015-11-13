@@ -44,6 +44,7 @@ public:
 	void CheckAndResolvePlayerVsEnemyCollisions();
 
 	void BeginEnemyShotPattern( const Enemy &firingEnemy, float deltaSeconds );
+	void BeginSplitShot( const Bullet &splittingBullet, float deltaSeconds );
 	void FirePlayerBullets( float deltaSeconds );
 	void SpawnBullet( bool FromEnemy, bool IsDirect, BulletType bulletType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity, float deltaSeconds );
 

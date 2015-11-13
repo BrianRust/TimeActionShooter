@@ -64,6 +64,9 @@
     <ClCompile Include="Game\GameState.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Game\PowerUp.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\World.hpp">
@@ -127,6 +130,9 @@
       <Filter>Engine\Controller</Filter>
     </ClInclude>
     <ClInclude Include="Game\GameState.hpp">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\PowerUp.hpp">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

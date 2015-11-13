@@ -87,6 +87,7 @@
     <ClCompile Include="Game\Enemy.cpp" />
     <ClCompile Include="Game\GameState.cpp" />
     <ClCompile Include="Game\Player.cpp" />
+    <ClCompile Include="Game\PowerUp.cpp" />
     <ClCompile Include="Game\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +111,7 @@
     <ClInclude Include="Game\Enemy.hpp" />
     <ClInclude Include="Game\GameState.hpp" />
     <ClInclude Include="Game\Player.hpp" />
+    <ClInclude Include="Game\PowerUp.hpp" />
     <ClInclude Include="Game\World.hpp" />
   </ItemGroup>
   <ItemGroup>

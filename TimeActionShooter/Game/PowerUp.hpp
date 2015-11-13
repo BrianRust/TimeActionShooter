@@ -1,15 +1,15 @@
-#ifndef included_Bullet
-#define included_Bullet
+#ifndef included_PowerUp
+#define included_PowerUp
 #pragma once
 
 #include "../Engine/Math/MyMathFiles.hpp"
 #include "../Engine/Constants.hpp"
 
 //-------------------------------------------------------------
-class Bullet
+class PowerUp
 {
 public:
-	Bullet();
+	PowerUp();
 	void Update(float deltaSeconds);
 	void Render();
 
@@ -18,19 +18,12 @@ public:
 
 	Vector2 m_position;
 	Vector2 m_velocity;
-	BulletType m_bulletType;
-	bool m_isDead;
-	bool m_fromEnemy;
 
-	float m_bulletRadius;
-	float m_shotSpeed;
+	float m_powerUpRadius;
 
-	AIShotPattern m_splitPattern;
-	BulletType m_splitBulletType;
-	double m_splitTime;
-
-	RGBA m_bulletColor;
+	PowerUpType m_powerUpType;
+	RGBA m_powerUpColor;
 };
 
 
-#endif //included_Bullet
+#endif //included_PowerUp

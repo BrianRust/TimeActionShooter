@@ -29,19 +29,21 @@ void World::Initialize()
 {
 	m_enemies.push_back(Enemy());
 	m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 15.f);
-	m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_DRAG;
-	m_enemies.push_back(Enemy());
-	m_enemies[m_enemies.size()-1].m_position = Vector2(15.f, 10.f);
-	m_enemies.push_back(Enemy());
-	m_enemies[m_enemies.size()-1].m_position = Vector2(-15.f, 10.f);
-
-	m_enemies.push_back(Enemy());
-	m_enemies[m_enemies.size()-1].m_position = Vector2(25.f, 10.f);
-	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
-
-	m_enemies.push_back(Enemy());
-	m_enemies[m_enemies.size()-1].m_position = Vector2(-27.f, -10.f);
-	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+	m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
+	m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
+	m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
+// 	m_enemies.push_back(Enemy());
+// 	m_enemies[m_enemies.size()-1].m_position = Vector2(15.f, 10.f);
+// 	m_enemies.push_back(Enemy());
+// 	m_enemies[m_enemies.size()-1].m_position = Vector2(-15.f, 10.f);
+// 
+// 	m_enemies.push_back(Enemy());
+// 	m_enemies[m_enemies.size()-1].m_position = Vector2(25.f, 10.f);
+// 	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+// 
+// 	m_enemies.push_back(Enemy());
+// 	m_enemies[m_enemies.size()-1].m_position = Vector2(-27.f, -10.f);
+// 	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
 
 	UpdateGameStateBuffer();
 }
@@ -194,7 +196,7 @@ void World::UpdatePlayerFromInput( float deltaSeconds )
 //----------------------------------------------------
 void World::Update() 
 {
-	float currentTime = (float) Time::GetCurrentTimeSeconds();
+	double currentTime = Time::GetCurrentTimeSeconds();
 	float deltaSeconds = ConstantParameters::DELTA_SECONDS; // Hack: assume 60 FPS
 
 	UpdatePlayerFromController( deltaSeconds );
@@ -233,6 +235,18 @@ void World::Update()
 			{
 				m_bullets.erase( m_bullets.begin() + index );
 				index--;
+			}
+			else
+			{
+				if ( m_bullets[index].m_bulletType == BULLETTYPE_SPLIT )
+				{
+					currentTime = Time::GetCurrentTimeSeconds();
+					if ( m_bullets[index].m_splitTime <= currentTime )
+					{
+						BeginSplitShot( m_bullets[index], deltaSeconds );
+						m_bullets[index].m_splitTime = Time::GetCurrentTimeSeconds() + ConstantParameters::SPLIT_BULLET_FREQUENCY;
+					}
+				}
 			}
 		}
 
@@ -279,21 +293,41 @@ void World::BeginEnemyShotPattern( const Enemy &firingEnemy, float deltaSeconds 
 	{
 	case AISHOTPATTERN_SINGLEDIRECT:
 		SpawnBullet( true, true, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, firingEnemy.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		break;
 	case AISHOTPATTERN_SPREAD:
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed, -firingEnemy.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, -firingEnemy.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, -firingEnemy.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed * 0.5f, -firingEnemy.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed * 0.5f, -firingEnemy.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		break;
 	case AISHOTPATTERN_HORIZONTAL:
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, 0.f), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed, 0.f), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		break;
 	case AISHOTPATTERN_VERTICAL:
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, firingEnemy.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, -firingEnemy.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		break;
 	}
 }
@@ -357,6 +391,7 @@ void World::CheckAndResolveBulletCollisions()
 			{
 				m_player.m_isDead = true;
 				m_bullets[bulletIndex].m_isDead = true;
+				m_timeMeter = m_timeMeter * 0.5;
 			}
 		}
 		else
@@ -509,6 +544,26 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 			{
 				FirePlayerBullets(deltaSeconds);
 			}
+			else
+			{
+				m_isPaused = false;
+			}
+		}
+
+		if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0)
+		{
+			if ( !m_isPaused )
+			{
+				m_isPaused = true;
+				m_lastPauseTimer = Time::GetCurrentTimeSeconds();
+			}
+
+			double currentTime = Time::GetCurrentTimeSeconds();
+			if ( ( currentTime - m_lastGameStateSwitch ) >= ConstantParameters::GAMESTATE_REWIND_RATE )
+			{
+				LoadGameState( m_gameStateBuffer.size()-1 );
+				m_lastGameStateSwitch = Time::GetCurrentTimeSeconds();
+			}
 		}
 
 		if ( (xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_START) != 0 )
@@ -548,6 +603,14 @@ void World::UpdatePauseTimers()
 		timePaused = currentTime - m_lastPauseTimer;
 		m_enemies[index].m_lastShotTime += timePaused;
 	}
+
+	//Need to do this for split timers too
+// 	for ( unsigned int index = 0; index < m_enemies.size(); index++ )
+// 	{
+// 		currentTime = Time::GetCurrentTimeSeconds();
+// 		timePaused = currentTime - m_lastPauseTimer;
+// 		m_enemies[index].m_lastShotTime += timePaused;
+// 	}
 }
 
 //-----------------------------------------------------
@@ -566,6 +629,11 @@ void World::UpdateGameStateBuffer()
 void World::LoadGameState( unsigned int index )
 {
 	if ( m_gameStateBuffer.size() <= index )
+	{
+		return;
+	}
+
+	if ( m_timeMeter <= 0.f )
 	{
 		return;
 	}
@@ -590,17 +658,18 @@ void World::LoadGameState( unsigned int index )
 //----------------------------------------------------
 void World::RenderTimeMeter()
 {
-	if (m_timeMeter <= 0.f)
-	{
-		return;
-	}
-
 	Vector2 position1 = Vector2(20.f, 17.f);
 	Vector2 position2 = Vector2(20.f, 16.f);
 	Vector2 position3 = Vector2(28.f, 16.f);
 	Vector2 position4 = Vector2(28.f, 17.f);
 
 	OpenGLRenderer::DrawQuad( position1, position2, position3, position4, RGBA(0.f, 0.f, 0.f, 1.f) );
+	
+	if (m_timeMeter <= 0.f)
+	{
+		m_timeMeter = 0.f;
+		return;
+	}
 
 	float timeRatio = m_timeMeter * 0.01f;
 	timeRatio *= 8.f;
@@ -609,4 +678,30 @@ void World::RenderTimeMeter()
 	position4.x = position1.x + timeRatio;
 
 	OpenGLRenderer::DrawQuad( position1, position2, position3, position4, RGBA(0.f, 0.f, 1.f, 1.f) );
+}
+
+//----------------------------------------------------
+void World::BeginSplitShot( const Bullet &splittingBullet, float deltaSeconds )
+{
+	switch(splittingBullet.m_splitPattern)
+	{
+	case AISHOTPATTERN_SINGLEDIRECT:
+		SpawnBullet( true, true, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, splittingBullet.m_shotSpeed), deltaSeconds );
+		break;
+	case AISHOTPATTERN_SPREAD:
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed, -splittingBullet.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, -splittingBullet.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed * 0.5f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed * 0.5f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		break;
+	case AISHOTPATTERN_HORIZONTAL:
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, 0.f), deltaSeconds );
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed, 0.f), deltaSeconds );
+		break;
+	case AISHOTPATTERN_VERTICAL:
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, splittingBullet.m_shotSpeed), deltaSeconds );
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		break;
+	}
 }

@@ -21,6 +21,8 @@ public:
 	Vector2 m_velocity;
 	AIShotPattern m_shotPattern;
 	BulletType m_bulletType;
+	AIShotPattern m_splitPattern;
+	BulletType m_splitBulletType;
 	bool m_isDead;
 
 	float m_playerRadius;

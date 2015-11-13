@@ -31,6 +31,8 @@ namespace ConstantParameters
 	const double GAMESTATE_REWIND_RATE = 0.05;
 
 	const float TIMEMETER_DRAIN = 0.05f;
+
+	const double SPLIT_BULLET_FREQUENCY = 0.50;
 }
 
 enum PlayerShotPattern
@@ -58,6 +60,13 @@ enum BulletType
 	BULLETTYPE_SPLIT,
 	BULLETTYPE_DRAG,
 	NUM_AISHOTTYPES
+};
+
+enum PowerUpType
+{
+	POWERUPTYPE_SHOT,
+	POWERUPTYPE_TIME,
+	NUM_POWERUPTYPES
 };
 
 #endif //included_Constants

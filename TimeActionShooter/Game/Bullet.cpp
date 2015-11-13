@@ -13,11 +13,14 @@ Bullet::Bullet()
 	, m_velocity(Vector2(0.f, 0.f))
 	, m_bulletType(BULLETTYPE_NORMAL)
 	, m_isDead(false)
+	, m_splitPattern(AISHOTPATTERN_SPREAD)
+	, m_splitBulletType(BULLETTYPE_NORMAL)
 	, m_bulletRadius(0.25f)
 	, m_bulletColor(RGBA(0.f, 0.f, 0.f, 1.f))
 	, m_fromEnemy(true)
+	, m_shotSpeed(20.f)
 {
-
+	m_splitTime = Time::GetCurrentTimeSeconds() + ConstantParameters::SPLIT_BULLET_FREQUENCY;
 }
 
 //------------------------------------------
