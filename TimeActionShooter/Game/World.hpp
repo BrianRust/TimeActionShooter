@@ -15,6 +15,7 @@
 #include "../Engine/Renderer/OpenGLRenderer.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "PowerUp.hpp"
 #include "Bullet.hpp"
 #include "GameState.hpp"
 
@@ -42,11 +43,14 @@ public:
 	void CheckAndResolveCollisions();
 	void CheckAndResolveBulletCollisions();
 	void CheckAndResolvePlayerVsEnemyCollisions();
+	void CheckAndResolvePlayerVsPowerUpCollisions();
 
 	void BeginEnemyShotPattern( const Enemy &firingEnemy, float deltaSeconds );
 	void BeginSplitShot( const Bullet &splittingBullet, float deltaSeconds );
 	void FirePlayerBullets( float deltaSeconds );
 	void SpawnBullet( bool FromEnemy, bool IsDirect, BulletType bulletType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity, float deltaSeconds );
+
+	void CollectPowerUp( PowerUpType powerUp );
 
 	bool m_isKeyDown[ 256 ];
 	bool m_keyIsHeld;
@@ -69,6 +73,7 @@ public:
 	float m_timeMeter;
 	std::vector<Enemy> m_enemies;
 	std::vector<Bullet> m_bullets;
+	std::vector<PowerUp> m_powerUps;
 	std::vector<GameState> m_gameStateBuffer;
 };
 

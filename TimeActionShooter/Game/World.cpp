@@ -32,6 +32,7 @@ void World::Initialize()
 	m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
 	m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
 	m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
+
 // 	m_enemies.push_back(Enemy());
 // 	m_enemies[m_enemies.size()-1].m_position = Vector2(15.f, 10.f);
 // 	m_enemies.push_back(Enemy());
@@ -222,6 +223,16 @@ void World::Update()
 
 			if ( m_enemies[index].m_isDead )
 			{
+				m_powerUps.push_back(PowerUp());
+				m_powerUps[m_powerUps.size()-1].m_position = m_enemies[index].m_position;
+				m_powerUps[m_powerUps.size()-1].m_position.x += m_enemies[index].m_playerRadius;
+
+				m_powerUps.push_back(PowerUp());
+				m_powerUps[m_powerUps.size()-1].m_position = m_enemies[index].m_position;
+				m_powerUps[m_powerUps.size()-1].m_position.x -= m_enemies[index].m_playerRadius;
+				m_powerUps[m_powerUps.size()-1].m_powerUpColor = RGBA(0.f, 0.f, 1.f, 1.f);
+				m_powerUps[m_powerUps.size()-1].m_powerUpType = POWERUPTYPE_TIME;
+
 				m_enemies.erase( m_enemies.begin() + index );
 				index--;
 			}
@@ -241,12 +252,24 @@ void World::Update()
 				if ( m_bullets[index].m_bulletType == BULLETTYPE_SPLIT )
 				{
 					currentTime = Time::GetCurrentTimeSeconds();
-					if ( m_bullets[index].m_splitTime <= currentTime )
+
+					if ( (currentTime - m_bullets[index].m_splitTime) > ConstantParameters::SPLIT_BULLET_FREQUENCY )
 					{
 						BeginSplitShot( m_bullets[index], deltaSeconds );
-						m_bullets[index].m_splitTime = Time::GetCurrentTimeSeconds() + ConstantParameters::SPLIT_BULLET_FREQUENCY;
-					}
+						m_bullets[index].m_splitTime = Time::GetCurrentTimeSeconds();
+					} 
 				}
+			}
+		}
+
+		for (unsigned int index = 0; index < m_powerUps.size(); index++)
+		{
+			m_powerUps[index].Update(deltaSeconds);
+
+			if ( m_powerUps[index].m_isDead )
+			{
+				m_powerUps.erase( m_powerUps.begin() + index );
+				index--;
 			}
 		}
 
@@ -279,6 +302,11 @@ void World::Render()
 	for (unsigned int index = 0; index < m_bullets.size(); index++)
 	{
 		m_bullets[index].Render();
+	}
+
+	for (unsigned int index = 0; index < m_powerUps.size(); index++)
+	{
+		m_powerUps[index].Render();
 	}
 
 	RenderTimeMeter();
@@ -366,6 +394,7 @@ void World::CheckAndResolveCollisions()
 {
 	CheckAndResolveBulletCollisions();
 	CheckAndResolvePlayerVsEnemyCollisions();
+	CheckAndResolvePlayerVsPowerUpCollisions();
 }
 
 //--------------------------------------------------
@@ -431,7 +460,18 @@ void World::FirePlayerBullets( float deltaSeconds )
 {
 	if ( m_player.m_readyToFire )
 	{
-		SpawnBullet( false, false, BULLETTYPE_NORMAL, m_player.m_position, m_player.m_position, Vector2(0.f, 72.f), deltaSeconds);
+		switch(m_player.m_shotPattern)
+		{
+		case PLAYERSHOTPATTERN_SINGLE:
+			SpawnBullet( false, false, BULLETTYPE_NORMAL, m_player.m_position, m_player.m_position, Vector2(0.f, 72.f), deltaSeconds);
+			break;
+		case PLAYERSHOTPATTERN_TWIN:
+			SpawnBullet( false, false, BULLETTYPE_NORMAL, m_player.m_position, Vector2( (m_player.m_position.x - ( m_player.m_playerRadius * 0.5f ) ), m_player.m_position.y ),  Vector2(0.f, 72.f), deltaSeconds);
+			SpawnBullet( false, false, BULLETTYPE_NORMAL, m_player.m_position, Vector2( (m_player.m_position.x + ( m_player.m_playerRadius * 0.5f ) ), m_player.m_position.y ),  Vector2(0.f, 72.f), deltaSeconds);
+			break;
+		case PLAYERSHOTPATTERN_SPREAD:
+			break;
+		}
 		
 		m_player.m_lastShotTime = Time::GetCurrentTimeSeconds();
 		m_player.m_readyToFire = false;
@@ -605,18 +645,18 @@ void World::UpdatePauseTimers()
 	}
 
 	//Need to do this for split timers too
-// 	for ( unsigned int index = 0; index < m_enemies.size(); index++ )
-// 	{
-// 		currentTime = Time::GetCurrentTimeSeconds();
-// 		timePaused = currentTime - m_lastPauseTimer;
-// 		m_enemies[index].m_lastShotTime += timePaused;
-// 	}
+	for ( unsigned int index = 0; index < m_bullets.size(); index++ )
+	{
+		currentTime = Time::GetCurrentTimeSeconds();
+		timePaused = currentTime - m_lastPauseTimer;
+		m_bullets[index].m_splitTime += timePaused;
+	}
 }
 
 //-----------------------------------------------------
 void World::UpdateGameStateBuffer()
 {
-	m_gameStateBuffer.push_back(GameState(m_player, m_enemies, m_bullets));
+	m_gameStateBuffer.push_back(GameState(m_player, m_enemies, m_bullets, m_powerUps));
 	m_lastGameStateUpdate = Time::GetCurrentTimeSeconds();
 
 	while ( m_gameStateBuffer.size() > ConstantParameters::GAMESTATE_BUFFER_SIZE )
@@ -641,6 +681,7 @@ void World::LoadGameState( unsigned int index )
 	m_player = m_gameStateBuffer[index].m_player;
 	m_bullets = m_gameStateBuffer[index].m_bullets;
 	m_enemies = m_gameStateBuffer[index].m_enemies;
+	m_powerUps = m_gameStateBuffer[index].m_powerUps;
 
 	m_gameStateBuffer.erase( m_gameStateBuffer.begin()+index, m_gameStateBuffer.end() );
 
@@ -649,6 +690,11 @@ void World::LoadGameState( unsigned int index )
 		for ( unsigned int index = 0; index < m_gameStateBuffer[bufferIndex].m_enemies.size(); index++ )
 		{
 			m_gameStateBuffer[bufferIndex].m_enemies[index].m_lastShotTime += ConstantParameters::GAMESTATE_UPDATE_RATE;
+		}
+
+		for ( unsigned int index = 0; index < m_gameStateBuffer[bufferIndex].m_bullets.size(); index++ )
+		{
+			m_gameStateBuffer[bufferIndex].m_bullets[index].m_splitTime += ConstantParameters::GAMESTATE_UPDATE_RATE;
 		}
 	}
 
@@ -702,6 +748,61 @@ void World::BeginSplitShot( const Bullet &splittingBullet, float deltaSeconds )
 	case AISHOTPATTERN_VERTICAL:
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, splittingBullet.m_shotSpeed), deltaSeconds );
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		break;
+	}
+}
+
+//----------------------------------------------------
+void World::CheckAndResolvePlayerVsPowerUpCollisions()
+{
+	for (unsigned int powerUpIndex = 0; powerUpIndex < m_powerUps.size(); powerUpIndex++)
+	{
+		if ( m_powerUps[powerUpIndex].m_isDead )
+		{
+			continue;
+		}
+
+		if (m_player.m_isDead)
+		{
+			continue;
+		}
+
+		float distanceBetweenPlayerAndEntity = VectorMagnitude( m_player.m_position - m_powerUps[powerUpIndex].m_position );
+		if ( distanceBetweenPlayerAndEntity < ( m_player.m_playerHitBoxRadius + m_powerUps[powerUpIndex].m_powerUpRadius ) )
+		{
+			m_powerUps[powerUpIndex].m_isDead = true;
+			CollectPowerUp( m_powerUps[powerUpIndex].m_powerUpType );
+		}
+	}
+}
+
+//--------------------------------------------------
+void World::CollectPowerUp( PowerUpType powerUp )
+{
+	switch(powerUp)
+	{
+	case POWERUPTYPE_POINTS:
+		break;
+	case POWERUPTYPE_TIME:
+		m_timeMeter += ConstantParameters::POWERUP_TIME_BONUS;
+		if ( m_timeMeter > 100.f )
+		{
+			m_timeMeter = 100.f;
+		}
+		break;
+	case POWERUPTYPE_SHOT:
+		
+		switch(m_player.m_shotPattern)
+		{
+		case PLAYERSHOTPATTERN_SINGLE:
+			m_player.m_shotPattern = PLAYERSHOTPATTERN_TWIN;
+			break;
+		case PLAYERSHOTPATTERN_TWIN:
+			break;
+		case PLAYERSHOTPATTERN_SPREAD:
+			break;
+		}
+
 		break;
 	}
 }

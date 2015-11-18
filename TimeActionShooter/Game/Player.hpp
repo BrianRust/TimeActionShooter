@@ -17,7 +17,6 @@ public:
 
 	Vector2 m_position;
 	float m_timeMeter;
-	int m_shotPower;
 	PlayerShotPattern m_shotPattern;
 	bool m_isDead;
 	bool m_isGrazing;

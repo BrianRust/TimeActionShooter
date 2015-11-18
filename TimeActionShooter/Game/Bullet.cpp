@@ -20,7 +20,7 @@ Bullet::Bullet()
 	, m_fromEnemy(true)
 	, m_shotSpeed(20.f)
 {
-	m_splitTime = Time::GetCurrentTimeSeconds() + ConstantParameters::SPLIT_BULLET_FREQUENCY;
+	m_splitTime = Time::GetCurrentTimeSeconds();
 }
 
 //------------------------------------------

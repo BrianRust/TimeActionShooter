@@ -5,7 +5,6 @@
 Player::Player()
 	: m_position(Vector2(0.f, -15.f))
 	, m_timeMeter(0.f)
-	, m_shotPower(0)
 	, m_shotPattern(PLAYERSHOTPATTERN_SINGLE)
 	, m_isDead(false)
 	, m_isGrazing(false)

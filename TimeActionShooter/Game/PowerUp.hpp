@@ -21,6 +21,8 @@ public:
 
 	float m_powerUpRadius;
 
+	bool m_isDead;
+
 	PowerUpType m_powerUpType;
 	RGBA m_powerUpColor;
 };
