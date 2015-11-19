@@ -61,6 +61,7 @@ public:
 
 	static void DrawTriangleFan( const Vector2& position, const RGBA& color, float radius, float segments=10.f );
 	static void DrawQuad( const Vector2& position1, const Vector2& position2, const Vector2& position3, const Vector2& position4, const RGBA& color );
+	static void DrawLine( const Vector2& position1, const Vector2& position2, const RGBA& color );
 };
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;

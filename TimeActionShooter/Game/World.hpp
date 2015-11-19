@@ -36,9 +36,10 @@ public:
 	void UpdatePauseTimers();
 	void UpdateGameStateBuffer();
 	void LoadGameState( unsigned int index );
-	void Render();
 
+	void Render();
 	void RenderTimeMeter();
+	void RenderGrabLine();
 
 	void CheckAndResolveCollisions();
 	void CheckAndResolveBulletCollisions();
@@ -51,6 +52,7 @@ public:
 	void SpawnBullet( bool FromEnemy, bool IsDirect, BulletType bulletType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity, float deltaSeconds );
 
 	void CollectPowerUp( PowerUpType powerUp );
+	void TriggerPowerUpLine(  );
 
 	bool m_isKeyDown[ 256 ];
 	bool m_keyIsHeld;

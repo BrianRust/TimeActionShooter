@@ -4,6 +4,7 @@
 //------------------------------------------
 const float OUT_OF_BOUNDS_SOUTH = -20.f;
 const float INITIAL_VERTICAL_VELOCITY = 10.f;
+const float HEAD_TOWARD_PLAYER_SPEED = 50.f;
 
 //------------------------------------------
 PowerUp::PowerUp()
@@ -13,14 +14,20 @@ PowerUp::PowerUp()
 	, m_isDead(false)
 	, m_powerUpRadius(0.8f)
 	, m_powerUpColor(RGBA(1.f, 0.f, 1.f, 1.f))
+	, m_isHeadingForPlayer(false)
 {
 	
 }
 
 //------------------------------------------
-void PowerUp::Update(float deltaSeconds)
+void PowerUp::Update( const Vector2 &playerPosition, float deltaSeconds )
 {
 	CheckAndKillIfOutOfBounds();
+
+	if ( m_isHeadingForPlayer )
+	{
+		UpdateVectorTowardsPlayer(playerPosition);
+	}
 	UpdatePosition(deltaSeconds);
 }
 
@@ -33,13 +40,16 @@ void PowerUp::CheckAndKillIfOutOfBounds()
 }
 
 //------------------------------------------
-void PowerUp::UpdatePosition(float deltaSeconds)
+void PowerUp::UpdatePosition( float deltaSeconds )
 {
 	m_position = m_position + ( m_velocity * deltaSeconds );
 	
-	if ( m_velocity.y > -20.f )
+	if ( !m_isHeadingForPlayer )
 	{
-		m_velocity.y -= ConstantParameters::GRAVITY * deltaSeconds;
+		if ( m_velocity.y > -20.f )
+		{
+			m_velocity.y -= ConstantParameters::GRAVITY * deltaSeconds;
+		}
 	}
 }
 
@@ -58,4 +68,12 @@ void PowerUp::Render()
 
 	OpenGLRenderer::DrawQuad( position1, position2, position3, position4, m_powerUpColor );
 
+}
+
+//------------------------------------------
+void PowerUp::UpdateVectorTowardsPlayer( const Vector2 &playerPosition )
+{
+	m_velocity = playerPosition - m_position;
+	m_velocity = Normalize(m_velocity);
+	m_velocity = m_velocity * HEAD_TOWARD_PLAYER_SPEED;
 }

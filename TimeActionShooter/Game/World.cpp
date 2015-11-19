@@ -210,6 +210,14 @@ void World::Update()
 	{
 		m_player.Update();
 
+		if ( !m_player.m_isDead )
+		{
+			if (m_player.m_position.y >= ConstantParameters::POWERUP_GRAB_LINE)
+			{
+				TriggerPowerUpLine();
+			}
+		}
+
 		for ( unsigned int index = 0; index < m_enemies.size(); index++ )
 		{
 			m_enemies[index].Update(deltaSeconds);
@@ -264,7 +272,7 @@ void World::Update()
 
 		for (unsigned int index = 0; index < m_powerUps.size(); index++)
 		{
-			m_powerUps[index].Update(deltaSeconds);
+			m_powerUps[index].Update(m_player.m_position, deltaSeconds);
 
 			if ( m_powerUps[index].m_isDead )
 			{
@@ -310,6 +318,8 @@ void World::Render()
 	}
 
 	RenderTimeMeter();
+
+	RenderGrabLine();
 
 	glPopMatrix();
 }
@@ -804,5 +814,23 @@ void World::CollectPowerUp( PowerUpType powerUp )
 		}
 
 		break;
+	}
+}
+
+//--------------------------------------------------
+void World::RenderGrabLine()
+{
+	Vector2 position1 = Vector2(-ConstantParameters::SCREEN_X_AXIS_LIMIT, ConstantParameters::POWERUP_GRAB_LINE);
+	Vector2 position2 = Vector2(ConstantParameters::SCREEN_X_AXIS_LIMIT, ConstantParameters::POWERUP_GRAB_LINE);
+
+	OpenGLRenderer::DrawLine(position1, position2, RGBA(1.f, 1.f, 1.f, 1.f));
+}
+
+//--------------------------------------------------
+void World::TriggerPowerUpLine()
+{
+	for (unsigned int index = 0; index < m_powerUps.size(); index++)
+	{
+		m_powerUps[index].m_isHeadingForPlayer = true;
 	}
 }

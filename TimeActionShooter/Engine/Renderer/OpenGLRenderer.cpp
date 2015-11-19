@@ -554,3 +554,15 @@ void OpenGLRenderer::DrawQuad( const Vector2& position1, const Vector2& position
 	}
 	glEnd();
 }
+
+void OpenGLRenderer::DrawLine( const Vector2& position1, const Vector2& position2, const RGBA& color )
+{
+	glBegin(GL_LINES);
+	{
+		glColor4f( color.r, color.g, color.b, color.a);
+
+		glVertex2d( position1.x, position1.y );
+		glVertex2d( position2.x, position2.y );
+	}
+	glEnd();
+}
