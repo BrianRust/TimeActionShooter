@@ -28,28 +28,11 @@ World::World(  )
 void World::Initialize() 
 {
 	m_lastCurrentTime = Time::GetCurrentTimeSeconds();
+	m_stageNumber = 0;
+
+	m_stageTimer = ConstantParameters::LEVEL_DELAY;
 	
-	m_enemies.push_back(Enemy());
-	m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 15.f);
-	m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
-	//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
-	//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_VERTICAL;
-	m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
-	m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
-
-// 	m_enemies.push_back(Enemy());
-// 	m_enemies[m_enemies.size()-1].m_position = Vector2(15.f, 10.f);
-// 	m_enemies.push_back(Enemy());
-// 	m_enemies[m_enemies.size()-1].m_position = Vector2(-15.f, 10.f);
-// 
-// 	m_enemies.push_back(Enemy());
-// 	m_enemies[m_enemies.size()-1].m_position = Vector2(25.f, 10.f);
-// 	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
-// 
-// 	m_enemies.push_back(Enemy());
-// 	m_enemies[m_enemies.size()-1].m_position = Vector2(-27.f, -10.f);
-// 	m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
-
+	SpawnEnemies();
 	UpdateGameStateBuffer();
 }
 
@@ -286,6 +269,18 @@ void World::Update()
 		if ( (currentTime - m_lastGameStateUpdate) >= ConstantParameters::GAMESTATE_UPDATE_RATE )
 		{
 			UpdateGameStateBuffer();
+		}
+	}
+
+	if( m_enemies.empty() )
+	{
+		m_stageTimer -= (double) deltaSeconds;
+
+		if (m_stageTimer <= 0.0)
+		{
+			m_stageNumber++;
+
+			SpawnEnemies();
 		}
 	}
 
@@ -643,7 +638,7 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 //-----------------------------------------------------
 void World::UpdateGameStateBuffer()
 {
-	m_gameStateBuffer.push_back(GameState(m_player, m_enemies, m_bullets, m_powerUps));
+	m_gameStateBuffer.push_back(GameState(m_player, m_enemies, m_bullets, m_powerUps, m_stageNumber, m_stageTimer));
 	m_lastGameStateUpdate = Time::GetCurrentTimeSeconds();
 
 	while ( m_gameStateBuffer.size() > ConstantParameters::GAMESTATE_BUFFER_SIZE )
@@ -669,6 +664,9 @@ void World::LoadGameState( unsigned int index )
 	m_bullets = m_gameStateBuffer[index].m_bullets;
 	m_enemies = m_gameStateBuffer[index].m_enemies;
 	m_powerUps = m_gameStateBuffer[index].m_powerUps;
+
+	m_stageNumber = m_gameStateBuffer[index].m_stageNumber;
+	m_stageTimer = m_gameStateBuffer[index].m_stageTimer;
 
 	m_gameStateBuffer.erase( m_gameStateBuffer.begin()+index, m_gameStateBuffer.end() );
 
@@ -804,5 +802,47 @@ void World::TriggerPowerUpLine()
 	for (unsigned int index = 0; index < m_powerUps.size(); index++)
 	{
 		m_powerUps[index].m_isHeadingForPlayer = true;
+	}
+}
+
+//--------------------------------------------------
+void World::SpawnEnemies()
+{
+	switch(m_stageNumber)
+	{
+	case 0:
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 15.f);
+		m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
+		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
+		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_VERTICAL;
+		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
+		m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
+		break;
+	case 1:
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(15.f, 10.f);
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-15.f, 10.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(25.f, 10.f);
+		m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-27.f, -10.f);
+		m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+		break;
+	case 2:
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 15.f);
+		m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
+		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
+		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_VERTICAL;
+		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
+		m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
+		break;
+	case 3:
+		break;
 	}
 }

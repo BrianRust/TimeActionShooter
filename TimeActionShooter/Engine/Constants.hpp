@@ -32,6 +32,8 @@ namespace ConstantParameters
 	const double GAMESTATE_UPDATE_RATE = 0.05;
 	const double GAMESTATE_REWIND_RATE = 0.05;
 
+	const double LEVEL_DELAY = 2.0;
+
 	const float TIMEMETER_DRAIN = 0.05f;
 
 	const double SPLIT_BULLET_FREQUENCY = 0.50;

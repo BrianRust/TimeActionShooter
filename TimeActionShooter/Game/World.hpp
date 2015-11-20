@@ -50,6 +50,8 @@ public:
 	void FirePlayerBullets( float deltaSeconds );
 	void SpawnBullet( bool FromEnemy, bool IsDirect, BulletType bulletType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity, float deltaSeconds );
 
+	void SpawnEnemies();
+
 	void CollectPowerUp( PowerUpType powerUp );
 	void TriggerPowerUpLine(  );
 
@@ -78,6 +80,9 @@ public:
 	std::vector<Bullet> m_bullets;
 	std::vector<PowerUp> m_powerUps;
 	std::vector<GameState> m_gameStateBuffer;
+
+	int m_stageNumber;
+	double m_stageTimer;
 };
 
 #endif //included_World
