@@ -33,7 +33,6 @@ public:
 	void Initialize();
 
 	void Update();
-	void UpdatePauseTimers();
 	void UpdateGameStateBuffer();
 	void LoadGameState( unsigned int index );
 
@@ -64,6 +63,8 @@ public:
 	double m_lastGameStateSwitch;
 
 	double m_lastGameStateUpdate;
+	
+	double m_lastCurrentTime;
 
 	Camera2D m_camera;
 	OpenGLRenderer m_renderer;

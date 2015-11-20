@@ -2,6 +2,9 @@
 #include "../Engine/Renderer/OpenGLRenderer.hpp"
 
 //------------------------------------------
+const double DELAY_TILL_NEXT_SHOT = 1.0;
+
+//------------------------------------------
 Enemy::Enemy()
 	: m_position(Vector2(0.f, 15.f))
 	, m_health(100.f)
@@ -16,7 +19,7 @@ Enemy::Enemy()
 	, m_playerGrazeRadius(0.5f)
 	, m_playerColor(RGBA(1.f, 0.f, 0.f, 1.f))
 	, m_readyToFire(false)
-	, m_delayTillNextShot(1.0)
+	, m_delayTillNextShot(DELAY_TILL_NEXT_SHOT)
 	, m_lastShotTime(Time::GetCurrentTimeSeconds())
 	, m_shotSpeed(20.f)
 {	
@@ -39,10 +42,18 @@ void Enemy::Update(float deltaSeconds)
 	
 	double currentTime = Time::GetCurrentTimeSeconds();
 
-	if ( (currentTime - m_lastShotTime) > m_delayTillNextShot )
+	m_delayTillNextShot -= (double) deltaSeconds;
+
+	if ( m_delayTillNextShot <= 0.0 )
 	{
 		m_readyToFire = true;
-	} 
+		m_delayTillNextShot = DELAY_TILL_NEXT_SHOT;
+	}
+
+// 	if ( (currentTime - m_lastShotTime) > m_delayTillNextShot )
+// 	{
+// 		m_readyToFire = true;
+// 	} 
 }
 
 //------------------------------------------

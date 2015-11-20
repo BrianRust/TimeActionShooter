@@ -27,10 +27,14 @@ World::World(  )
 //----------------------------------------------------
 void World::Initialize() 
 {
+	m_lastCurrentTime = Time::GetCurrentTimeSeconds();
+	
 	m_enemies.push_back(Enemy());
 	m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 15.f);
 	m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
-	m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
+	//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
+	//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_VERTICAL;
+	m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
 	m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
 
 // 	m_enemies.push_back(Enemy());
@@ -119,11 +123,7 @@ void World::UpdatePlayerFromInput( float deltaSeconds )
 	{
 		m_keyIsHeld = true;
 
-		if ( m_isPaused )
-		{
-			UpdatePauseTimers();
-		}
-		else
+		if ( !m_isPaused )
 		{
 			m_lastPauseTimer = Time::GetCurrentTimeSeconds();
 		}
@@ -200,6 +200,8 @@ void World::Update()
 	double currentTime = Time::GetCurrentTimeSeconds();
 	float deltaSeconds = ConstantParameters::DELTA_SECONDS; // Hack: assume 60 FPS
 
+	deltaSeconds = currentTime - m_lastCurrentTime;
+
 	UpdatePlayerFromController( deltaSeconds );
 	UpdatePlayerFromInput( deltaSeconds );
 	UpdateCameraFromInput( deltaSeconds );
@@ -261,10 +263,10 @@ void World::Update()
 				{
 					currentTime = Time::GetCurrentTimeSeconds();
 
-					if ( (currentTime - m_bullets[index].m_splitTime) > ConstantParameters::SPLIT_BULLET_FREQUENCY )
+					if ( m_bullets[index].m_splitTime <= 0.0 )
 					{
 						BeginSplitShot( m_bullets[index], deltaSeconds );
-						m_bullets[index].m_splitTime = Time::GetCurrentTimeSeconds();
+						m_bullets[index].m_splitTime = ConstantParameters::SPLIT_BULLET_FREQUENCY;
 					} 
 				}
 			}
@@ -286,6 +288,8 @@ void World::Update()
 			UpdateGameStateBuffer();
 		}
 	}
+
+	m_lastCurrentTime = currentTime;
 }
 
 //----------------------------------------------------
@@ -620,11 +624,7 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 		{
 			if ( !m_isButtonHeld )
 			{
-				if ( m_isPaused )
-				{
-					UpdatePauseTimers();
-				}
-				else
+				if ( !m_isPaused )
 				{
 					m_lastPauseTimer = Time::GetCurrentTimeSeconds();
 				}
@@ -637,29 +637,6 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 		{
 			m_isButtonHeld = false;
 		}
-	}
-}
-
-//----------------------------------------------------
-void World::UpdatePauseTimers()
-{
-	double currentTime = Time::GetCurrentTimeSeconds();
-	double timePaused = currentTime - m_lastPauseTimer;
-	m_lastGameStateUpdate += timePaused;
-
-	for ( unsigned int index = 0; index < m_enemies.size(); index++ )
-	{
-		currentTime = Time::GetCurrentTimeSeconds();
-		timePaused = currentTime - m_lastPauseTimer;
-		m_enemies[index].m_lastShotTime += timePaused;
-	}
-
-	//Need to do this for split timers too
-	for ( unsigned int index = 0; index < m_bullets.size(); index++ )
-	{
-		currentTime = Time::GetCurrentTimeSeconds();
-		timePaused = currentTime - m_lastPauseTimer;
-		m_bullets[index].m_splitTime += timePaused;
 	}
 }
 
@@ -694,19 +671,6 @@ void World::LoadGameState( unsigned int index )
 	m_powerUps = m_gameStateBuffer[index].m_powerUps;
 
 	m_gameStateBuffer.erase( m_gameStateBuffer.begin()+index, m_gameStateBuffer.end() );
-
-	for ( unsigned int bufferIndex = 0; bufferIndex < m_gameStateBuffer.size(); bufferIndex++ )
-	{
-		for ( unsigned int index = 0; index < m_gameStateBuffer[bufferIndex].m_enemies.size(); index++ )
-		{
-			m_gameStateBuffer[bufferIndex].m_enemies[index].m_lastShotTime += ConstantParameters::GAMESTATE_UPDATE_RATE;
-		}
-
-		for ( unsigned int index = 0; index < m_gameStateBuffer[bufferIndex].m_bullets.size(); index++ )
-		{
-			m_gameStateBuffer[bufferIndex].m_bullets[index].m_splitTime += ConstantParameters::GAMESTATE_UPDATE_RATE;
-		}
-	}
 
 	m_timeMeter -= ConstantParameters::GAMESTATE_UPDATE_RATE;
 }
@@ -743,13 +707,19 @@ void World::BeginSplitShot( const Bullet &splittingBullet, float deltaSeconds )
 	{
 	case AISHOTPATTERN_SINGLEDIRECT:
 		SpawnBullet( true, true, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, splittingBullet.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		break;
 	case AISHOTPATTERN_SPREAD:
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed, -splittingBullet.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, -splittingBullet.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed * 0.5f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed * 0.5f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		break;
 	case AISHOTPATTERN_HORIZONTAL:
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, 0.f), deltaSeconds );
@@ -757,7 +727,9 @@ void World::BeginSplitShot( const Bullet &splittingBullet, float deltaSeconds )
 		break;
 	case AISHOTPATTERN_VERTICAL:
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, splittingBullet.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, -splittingBullet.m_shotSpeed), deltaSeconds );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		break;
 	}
 }

@@ -20,7 +20,7 @@ Bullet::Bullet()
 	, m_fromEnemy(true)
 	, m_shotSpeed(20.f)
 {
-	m_splitTime = Time::GetCurrentTimeSeconds();
+	m_splitTime = ConstantParameters::SPLIT_BULLET_FREQUENCY;
 }
 
 //------------------------------------------
@@ -28,6 +28,8 @@ void Bullet::Update(float deltaSeconds)
 {
 	CheckAndKillIfOutOfBounds();
 	UpdatePosition(deltaSeconds);
+
+	m_splitTime -= (double) deltaSeconds;
 }
 
 void Bullet::CheckAndKillIfOutOfBounds()

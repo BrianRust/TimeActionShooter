@@ -46,7 +46,7 @@ void PowerUp::UpdatePosition( float deltaSeconds )
 	
 	if ( !m_isHeadingForPlayer )
 	{
-		if ( m_velocity.y > -20.f )
+		if ( m_velocity.y > -10.f )
 		{
 			m_velocity.y -= ConstantParameters::GRAVITY * deltaSeconds;
 		}
