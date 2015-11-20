@@ -270,17 +270,18 @@ void World::Update()
 		{
 			UpdateGameStateBuffer();
 		}
-	}
 
-	if( m_enemies.empty() )
-	{
-		m_stageTimer -= (double) deltaSeconds;
-
-		if (m_stageTimer <= 0.0)
+		if( m_enemies.empty() )
 		{
-			m_stageNumber++;
+			m_stageTimer -= (double) deltaSeconds;
 
-			SpawnEnemies();
+			if (m_stageTimer <= 0.0)
+			{
+				m_stageNumber++;
+				m_stageTimer = ConstantParameters::LEVEL_DELAY;
+
+				SpawnEnemies();
+			}
 		}
 	}
 
@@ -638,7 +639,7 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 //-----------------------------------------------------
 void World::UpdateGameStateBuffer()
 {
-	m_gameStateBuffer.push_back(GameState(m_player, m_enemies, m_bullets, m_powerUps, m_stageNumber, m_stageTimer));
+	m_gameStateBuffer.push_back( GameState( m_player, m_enemies, m_bullets, m_powerUps, m_stageNumber, m_stageTimer ) );
 	m_lastGameStateUpdate = Time::GetCurrentTimeSeconds();
 
 	while ( m_gameStateBuffer.size() > ConstantParameters::GAMESTATE_BUFFER_SIZE )
@@ -815,8 +816,8 @@ void World::SpawnEnemies()
 		m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 15.f);
 		m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
 		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
-		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_VERTICAL;
-		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
+		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_VERTICAL;
+		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
 		m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
 		break;
 	case 1:

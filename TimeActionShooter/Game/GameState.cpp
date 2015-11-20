@@ -9,6 +9,6 @@ GameState::GameState( const Player &player, const std::vector<Enemy> &enemies, c
 	m_bullets = bullets;
 	m_powerUps = powerUps;
 
-	m_stageNumber = timer;
+	m_stageNumber = stage;
 	m_stageTimer = timer;
 }
