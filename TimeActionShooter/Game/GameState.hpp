@@ -12,7 +12,7 @@
 class GameState
 {
 public:
-	GameState( const Player &player, const std::vector<Enemy> &enemies, const std::vector<Bullet> &bullets, const std::vector<PowerUp> &powerUps, int stage, int timer );
+	GameState( const Player &player, const std::vector<Enemy> &enemies, const std::vector<Bullet> &bullets, const std::vector<PowerUp> &powerUps, int stage, double timer );
 	
 	Player m_player;
 	std::vector<Enemy> m_enemies;
@@ -20,7 +20,7 @@ public:
 	std::vector<PowerUp> m_powerUps;
 
 	int m_stageNumber;
-	int m_stageTimer;
+	double m_stageTimer;
 };
 
 

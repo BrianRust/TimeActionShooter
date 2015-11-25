@@ -34,7 +34,7 @@ namespace ConstantParameters
 
 	const double LEVEL_DELAY = 2.0;
 
-	const float TIMEMETER_DRAIN = 0.05f;
+	const float TIMEMETER_DRAIN = 0.35f;
 
 	const double SPLIT_BULLET_FREQUENCY = 0.50;
 

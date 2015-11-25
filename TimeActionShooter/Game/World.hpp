@@ -27,7 +27,6 @@ public:
 	bool ProcessKeyDownEvent( unsigned char virtualKeyCode);
 	bool ProcessKeyUpEvent( unsigned char virtualKeyCode);
 	void UpdatePlayerFromInput( float deltaseconds );
-	void UpdateCameraFromInput( float deltaseconds );
 	void UpdatePlayerFromController( float deltaSeconds );
 	void UpdateFromMouseInput();
 	void Initialize();
@@ -45,10 +44,10 @@ public:
 	void CheckAndResolvePlayerVsEnemyCollisions();
 	void CheckAndResolvePlayerVsPowerUpCollisions();
 
-	void BeginEnemyShotPattern( const Enemy &firingEnemy, float deltaSeconds );
-	void BeginSplitShot( const Bullet &splittingBullet, float deltaSeconds );
-	void FirePlayerBullets( float deltaSeconds );
-	void SpawnBullet( bool FromEnemy, bool IsDirect, BulletType bulletType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity, float deltaSeconds );
+	void BeginEnemyShotPattern( const Enemy &firingEnemy );
+	void BeginSplitShot( const Bullet &splittingBullet );
+	void FirePlayerBullets();
+	void SpawnBullet( bool FromEnemy, bool IsDirect, BulletType bulletType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity );
 
 	void SpawnEnemies();
 

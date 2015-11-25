@@ -39,8 +39,6 @@ void Enemy::Update(float deltaSeconds)
 		m_readyToFire = false;
 		return;
 	}
-	
-	double currentTime = Time::GetCurrentTimeSeconds();
 
 	m_delayTillNextShot -= (double) deltaSeconds;
 
@@ -49,11 +47,6 @@ void Enemy::Update(float deltaSeconds)
 		m_readyToFire = true;
 		m_delayTillNextShot = DELAY_TILL_NEXT_SHOT;
 	}
-
-// 	if ( (currentTime - m_lastShotTime) > m_delayTillNextShot )
-// 	{
-// 		m_readyToFire = true;
-// 	} 
 }
 
 //------------------------------------------
