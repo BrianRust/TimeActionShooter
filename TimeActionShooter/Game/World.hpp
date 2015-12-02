@@ -52,7 +52,7 @@ public:
 	void SpawnEnemies();
 
 	void CollectPowerUp( PowerUpType powerUp );
-	void TriggerPowerUpLine(  );
+	void TriggerPowerUpLine();
 
 	bool m_isKeyDown[ 256 ];
 	bool m_keyIsHeld;

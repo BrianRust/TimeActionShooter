@@ -3,6 +3,10 @@
 
 //------------------------------------------
 const double DELAY_TILL_NEXT_SHOT = 1.0;
+const float OUT_OF_BOUNDS_NORTH = 23.f;
+const float OUT_OF_BOUNDS_SOUTH = -23.f;
+const float OUT_OF_BOUNDS_EAST = 37.f;
+const float OUT_OF_BOUNDS_WEST = -37.f;
 
 //------------------------------------------
 Enemy::Enemy()
@@ -22,13 +26,22 @@ Enemy::Enemy()
 	, m_delayTillNextShot(DELAY_TILL_NEXT_SHOT)
 	, m_lastShotTime(Time::GetCurrentTimeSeconds())
 	, m_shotSpeed(20.f)
+	, m_movementPattern(AIMOVEMENTPATTERN_STILL)
+	, m_movementSpeed(5.f)
+	, m_isFiring(true)
+	, m_destination(Vector2(0.f, 15.f))
 {	
-	
+	m_maxHealthRatio = 1.f/m_health;
+	m_maxDelayTillNextShot = m_delayTillNextShot;
 }
 
 //------------------------------------------
 void Enemy::Update(float deltaSeconds)
 {
+	UpdatePosition( deltaSeconds );
+
+	CheckAndResolveOutOfBounds();
+	
 	if ( m_health <= 0.f )
 	{
 		m_isDead = true;
@@ -42,10 +55,10 @@ void Enemy::Update(float deltaSeconds)
 
 	m_delayTillNextShot -= (double) deltaSeconds;
 
-	if ( m_delayTillNextShot <= 0.0 )
+	if ( ( m_delayTillNextShot <= 0.0 ) && ( m_isFiring ) )
 	{
 		m_readyToFire = true;
-		m_delayTillNextShot = DELAY_TILL_NEXT_SHOT;
+		m_delayTillNextShot = m_maxDelayTillNextShot;
 	}
 }
 
@@ -76,7 +89,7 @@ void Enemy::Render()
 
 	OpenGLRenderer::DrawQuad( position1, position2, position3, position4, RGBA(1.f, 0.f, 0.f, 1.f) );
 
-	float lifeRatio = m_health * 0.01f;
+	float lifeRatio = m_health * m_maxHealthRatio;
 	lifeRatio *= 3.f;
 
 	position3.x = position1.x + lifeRatio;
@@ -102,5 +115,107 @@ bool Enemy::CheckCollision( const Vector2& entityPosition )
 //-------------------------------------------------------
 void Enemy::UpdatePosition( float deltaSeconds )
 {
-	m_position = m_position + ( m_velocity * deltaSeconds );
+	//m_position = m_position + ( m_velocity * deltaSeconds );
+
+	switch( m_movementPattern )
+	{
+		case AIMOVEMENTPATTERN_STILL:
+			m_velocity = Vector2(0.f, 0.f);
+			break;
+		case AIMOVEMENTPATTERN_LEFTTORIGHT:
+			m_velocity = Vector2(1.f, 0.f);
+			break;
+		case AIMOVEMENTPATTERN_RIGHTTOLEFT:
+			m_velocity = Vector2(-1.f, 0.f);
+			break;
+		case AIMOVEMENTPATTERN_DOWN:
+			m_velocity = Vector2(0.f, -1.f);
+			break;
+		case AIMOVEMENTPATTERN_DESTINATION:
+			if ( VectorMagnitude( (m_destination - m_position) ) <= ( deltaSeconds * m_movementSpeed ) )
+			{
+				m_position = m_destination;
+				m_movementPattern = AIMOVEMENTPATTERN_STILL;
+			}
+			else
+			{
+				m_velocity = Normalize( (m_destination - m_position) );
+			}
+			break;
+	}
+
+	m_position = m_position + ( m_velocity * deltaSeconds * m_movementSpeed );
+}
+
+//----------------------------------------------------
+void Enemy::CheckAndResolveOutOfBounds()
+{
+	switch( m_movementPattern )
+	{
+		case AIMOVEMENTPATTERN_STILL:
+			m_isFiring = true;
+			break;
+		case AIMOVEMENTPATTERN_LEFTTORIGHT:
+			if ( m_position.x > OUT_OF_BOUNDS_EAST )
+			{
+				m_isDead = true;
+				m_isFiring = false;
+			}
+			else if ( m_position.x < OUT_OF_BOUNDS_WEST )
+			{
+				m_isFiring = false;
+			}
+			else
+			{
+				m_isFiring = true;
+			}
+			break;
+		case AIMOVEMENTPATTERN_RIGHTTOLEFT:
+			if ( m_position.x < OUT_OF_BOUNDS_WEST )
+			{
+				m_isDead = true;
+				m_isFiring = false;
+			}
+			else if ( m_position.x > OUT_OF_BOUNDS_EAST )
+			{
+				m_isFiring = false;
+			}
+			else
+			{
+				m_isFiring = true;
+			}
+			break;
+		case AIMOVEMENTPATTERN_DOWN:
+			if ( m_position.y < OUT_OF_BOUNDS_SOUTH )
+			{
+				m_isDead = true;
+				m_isFiring = false;
+			}
+			else if ( m_position.y > OUT_OF_BOUNDS_NORTH )
+			{
+				m_isFiring = false;
+			}
+			else
+			{
+				m_isFiring = true;
+			}
+			break;
+		case AIMOVEMENTPATTERN_DESTINATION:
+			m_isFiring = false;
+			m_delayTillNextShot = m_maxDelayTillNextShot;
+			break;
+	}
+}
+
+//----------------------------------------------------
+void Enemy::ChangeMaxHealth( float newHealth )
+{
+	m_health = newHealth;
+	m_maxHealthRatio = 1.f/m_health;
+}
+
+//----------------------------------------------------
+void Enemy::ChangeDelayTillNextShot( double newTime )
+{
+	m_maxDelayTillNextShot = newTime;
 }

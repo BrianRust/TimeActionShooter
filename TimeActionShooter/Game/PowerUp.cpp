@@ -3,6 +3,8 @@
 
 //------------------------------------------
 const float OUT_OF_BOUNDS_SOUTH = -20.f;
+const float OUT_OF_BOUNDS_EAST = 34.f;
+const float OUT_OF_BOUNDS_WEST = -34.f;
 const float INITIAL_VERTICAL_VELOCITY = 10.f;
 const float HEAD_TOWARD_PLAYER_SPEED = 50.f;
 
@@ -33,6 +35,16 @@ void PowerUp::Update( const Vector2 &playerPosition, float deltaSeconds )
 
 void PowerUp::CheckAndKillIfOutOfBounds()
 {
+	if ( m_position.x > OUT_OF_BOUNDS_EAST )
+	{
+		m_isDead = true;
+	}
+
+	if ( m_position.x < OUT_OF_BOUNDS_WEST )
+	{
+		m_isDead = true;
+	}
+
 	if ( m_position.y < OUT_OF_BOUNDS_SOUTH )
 	{
 		m_isDead = true;

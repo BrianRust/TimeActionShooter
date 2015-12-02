@@ -25,7 +25,7 @@ World::World(  )
 }
 
 //----------------------------------------------------
-void World::Initialize() 
+void World::Initialize()
 {
 	m_lastCurrentTime = Time::GetCurrentTimeSeconds();
 	m_stageNumber = 0;
@@ -490,7 +490,7 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 		{
 			if ( !m_isPaused )
 			{
-				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)
 				{
 					if (m_player.m_position.x > -ConstantParameters::PLAYER_X_AXIS_LIMIT)
 					{
@@ -511,7 +511,7 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 		{
 			if ( !m_isPaused )
 			{
-				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)
 				{
 					if (m_player.m_position.x < ConstantParameters::PLAYER_X_AXIS_LIMIT)
 					{
@@ -532,7 +532,7 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 		{
 			if ( !m_isPaused )
 			{
-				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)
 				{
 					if (m_player.m_position.y < ConstantParameters::PLAYER_Y_AXIS_LIMIT)
 					{
@@ -553,7 +553,7 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 		{
 			if ( !m_isPaused )
 			{
-				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+				if((xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)
 				{
 					if (m_player.m_position.y > -ConstantParameters::PLAYER_Y_AXIS_LIMIT)
 					{
@@ -579,7 +579,7 @@ void World::UpdatePlayerFromController( float deltaSeconds )
 			}
 		}
 
-		if( (xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0 )
+		if( (xboxControllerState.Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0 )
 		{
 			if ( !m_isPaused )
 			{
@@ -800,41 +800,103 @@ void World::TriggerPowerUpLine()
 //--------------------------------------------------
 void World::SpawnEnemies()
 {
+	unsigned int MAX_ENEMIES = 15;
+	float xPos = 0.f;
+	float yPos = 0.f;
+	
 	switch(m_stageNumber)
 	{
 	case 0:
-		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 15.f);
-		m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
-		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
-		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_VERTICAL;
-		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
-		m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
+		MAX_ENEMIES = 7;
+		for ( unsigned int counter = 0; counter < MAX_ENEMIES; counter++ )
+		{
+			xPos = -37.f + ( counter * -8.f );
+			yPos = 15.f;
+			m_enemies.push_back(Enemy());
+			m_enemies[m_enemies.size()-1].m_position = Vector2(xPos, yPos);
+			m_enemies[m_enemies.size()-1].m_movementPattern = AIMOVEMENTPATTERN_LEFTTORIGHT;
+			m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+			m_enemies[m_enemies.size()-1].ChangeMaxHealth(25.f);
+		}
+
+		MAX_ENEMIES = 7;
+		for ( unsigned int counter = 0; counter < MAX_ENEMIES; counter++ )
+		{
+			xPos = 74.f + ( counter * 8.f );
+			yPos = 10.f;
+			m_enemies.push_back(Enemy());
+			m_enemies[m_enemies.size()-1].m_position = Vector2(xPos, yPos);
+			m_enemies[m_enemies.size()-1].m_movementPattern = AIMOVEMENTPATTERN_RIGHTTOLEFT;
+			m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+			m_enemies[m_enemies.size()-1].ChangeMaxHealth(25.f);
+		}
+
 		break;
 	case 1:
-		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(15.f, 10.f);
-		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(-15.f, 10.f);
+		MAX_ENEMIES = 7;
+		for ( unsigned int counter = 0; counter < MAX_ENEMIES; counter++ )
+		{
+			xPos = 22.f;
+			yPos = 28.f + ( counter * 8.f );
+			m_enemies.push_back(Enemy());
+			m_enemies[m_enemies.size()-1].m_position = Vector2(xPos, yPos);
+			m_enemies[m_enemies.size()-1].m_movementPattern = AIMOVEMENTPATTERN_DOWN;
+			m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+			m_enemies[m_enemies.size()-1].ChangeMaxHealth(50.f);
+		}
 
 		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(25.f, 10.f);
-		m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
-
-		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(-27.f, -10.f);
-		m_enemies[m_enemies.size()-1].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-5.f, 28.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(-5.f, 15.f);
+		m_enemies[m_enemies.size()-1].ChangeMaxHealth(100.f);
+		m_enemies[m_enemies.size()-1].m_movementPattern = AIMOVEMENTPATTERN_DESTINATION;
+		m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
+		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
+		m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
 		break;
 	case 2:
 		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 15.f);
-		m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
-		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SPREAD;
-		//m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_VERTICAL;
-		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
-		m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-5.f, 28.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(-5.f, 15.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(5.f, 58.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(5.f, 15.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(58.f, 13.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(18.f, 13.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-90.f, 13.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(-18.f, 13.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-75.f, 17.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(-13.f, 10.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(100.f, 28.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(13.f, 10.f);
+		
+		for (unsigned int index = 0; index < m_enemies.size(); index++)
+		{
+			m_enemies[index].ChangeMaxHealth(100.f);
+			m_enemies[index].m_movementPattern = AIMOVEMENTPATTERN_DESTINATION;
+			m_enemies[index].m_shotPattern = AISHOTPATTERN_SINGLEDIRECT;
+			m_enemies[index].m_bulletType = BULLETTYPE_DRAG;
+			m_enemies[index].ChangeDelayTillNextShot(0.4);
+			m_enemies[index].m_movementSpeed = 12.f;
+		}
 		break;
 	case 3:
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(0.f, 29.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(0.f, 15.f);
+		m_enemies[m_enemies.size()-1].m_movementPattern = AIMOVEMENTPATTERN_DESTINATION;
+		m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
+		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
+		m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
 		break;
 	}
 }
