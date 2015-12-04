@@ -43,6 +43,8 @@ namespace ConstantParameters
 	const float POWERUP_TIME_BONUS = 10.f;
 
 	const float POWERUP_GRAB_LINE = 10.f;
+
+	const float TIMEMETER_REGEN_RATE = 0.35f;
 }
 
 enum PlayerShotPattern

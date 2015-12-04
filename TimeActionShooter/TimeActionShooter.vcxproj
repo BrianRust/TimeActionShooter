@@ -83,11 +83,13 @@
     <ClCompile Include="Engine\Matrix\MatrixStack.cpp" />
     <ClCompile Include="Engine\Renderer\OpenGLRenderer.cpp" />
     <ClCompile Include="Engine\Time\Time.cpp" />
+    <ClCompile Include="Game\Boss.cpp" />
     <ClCompile Include="Game\Bullet.cpp" />
     <ClCompile Include="Game\Enemy.cpp" />
     <ClCompile Include="Game\GameState.cpp" />
     <ClCompile Include="Game\Player.cpp" />
     <ClCompile Include="Game\PowerUp.cpp" />
+    <ClCompile Include="Game\Turret.cpp" />
     <ClCompile Include="Game\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -107,11 +109,13 @@
     <ClInclude Include="Engine\Renderer\glext.h" />
     <ClInclude Include="Engine\Renderer\OpenGLRenderer.hpp" />
     <ClInclude Include="Engine\Time\Time.hpp" />
+    <ClInclude Include="Game\Boss.hpp" />
     <ClInclude Include="Game\Bullet.hpp" />
     <ClInclude Include="Game\Enemy.hpp" />
     <ClInclude Include="Game\GameState.hpp" />
     <ClInclude Include="Game\Player.hpp" />
     <ClInclude Include="Game\PowerUp.hpp" />
+    <ClInclude Include="Game\Turret.hpp" />
     <ClInclude Include="Game\World.hpp" />
   </ItemGroup>
   <ItemGroup>

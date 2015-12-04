@@ -188,9 +188,19 @@ void World::Update()
 
 		if ( !m_player.m_isDead )
 		{
-			if (m_player.m_position.y >= ConstantParameters::POWERUP_GRAB_LINE)
+			if ( m_player.m_position.y >= ConstantParameters::POWERUP_GRAB_LINE )
 			{
 				TriggerPowerUpLine();
+			}
+
+			if ( m_player.m_isGrazing )
+			{
+				m_timeMeter += ConstantParameters::TIMEMETER_REGEN_RATE;
+
+				if ( m_timeMeter > 100.f )
+				{
+					m_timeMeter = 100.f;
+				}
 			}
 		}
 
@@ -201,7 +211,6 @@ void World::Update()
 			if ( m_enemies[index].m_readyToFire )
 			{
 				BeginEnemyShotPattern( m_enemies[index] );
-				m_enemies[index].m_lastShotTime = Time::GetCurrentTimeSeconds();
 				m_enemies[index].m_readyToFire = false;
 			}
 
@@ -860,24 +869,32 @@ void World::SpawnEnemies()
 		m_enemies[m_enemies.size()-1].m_destination = Vector2(-5.f, 15.f);
 
 		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(5.f, 58.f);
+		m_enemies[m_enemies.size()-1].m_position = Vector2(5.f, 28.f);
 		m_enemies[m_enemies.size()-1].m_destination = Vector2(5.f, 15.f);
 
 		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(58.f, 13.f);
-		m_enemies[m_enemies.size()-1].m_destination = Vector2(18.f, 13.f);
-
-		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(-90.f, 13.f);
-		m_enemies[m_enemies.size()-1].m_destination = Vector2(-18.f, 13.f);
-
-		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(-75.f, 17.f);
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-58.f, 17.f);
 		m_enemies[m_enemies.size()-1].m_destination = Vector2(-13.f, 10.f);
 
 		m_enemies.push_back(Enemy());
-		m_enemies[m_enemies.size()-1].m_position = Vector2(100.f, 28.f);
+		m_enemies[m_enemies.size()-1].m_position = Vector2(58.f, 28.f);
 		m_enemies[m_enemies.size()-1].m_destination = Vector2(13.f, 10.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(100.f, 13.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(18.f, 13.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-100.f, 13.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(-18.f, 13.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(-130.f, 17.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(-23.f, 10.f);
+
+		m_enemies.push_back(Enemy());
+		m_enemies[m_enemies.size()-1].m_position = Vector2(130.f, 28.f);
+		m_enemies[m_enemies.size()-1].m_destination = Vector2(23.f, 10.f);
 		
 		for (unsigned int index = 0; index < m_enemies.size(); index++)
 		{
@@ -897,6 +914,9 @@ void World::SpawnEnemies()
 		m_enemies[m_enemies.size()-1].m_bulletType = BULLETTYPE_SPLIT;
 		m_enemies[m_enemies.size()-1].m_splitPattern = AISHOTPATTERN_SINGLEDIRECT;
 		m_enemies[m_enemies.size()-1].m_splitBulletType = BULLETTYPE_DRAG;
+		break;
+	case 4:
+		//spawn boss
 		break;
 	}
 }

@@ -1,22 +1,19 @@
-#ifndef included_Enemy
-#define included_Enemy
+#ifndef included_Boss
+#define included_Boss
 #pragma once
 
 #include "../Engine/Math/MyMathFiles.hpp"
 #include "../Engine/Constants.hpp"
 
 //-------------------------------------------------------------
-class Enemy
+class Boss
 {
 public:
-	Enemy();
+	Boss();
 	void Update(float deltaSeconds);
 	void Render();
 
 	void UpdatePosition(float deltaSeconds);
-	void CheckAndResolveOutOfBounds();
-	void ChangeMaxHealth(float newHealth);
-	void ChangeDelayTillNextShot(double newTime);
 	bool CheckCollision( const Vector2& entityPosition );
 
 	Vector2 m_position;
@@ -30,7 +27,6 @@ public:
 	AIShotPattern m_splitPattern;
 	BulletType m_splitBulletType;
 	bool m_isDead;
-
 	bool m_isFiring;
 
 	float m_playerRadius;
@@ -48,7 +44,9 @@ public:
 	bool m_readyToFire;
 
 	RGBA m_playerColor;
+
+	int m_bossPhase;
 };
 
 
-#endif //included_Enemy
+#endif //included_Boss

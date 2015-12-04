@@ -1,4 +1,4 @@
-#include "Enemy.hpp"
+#include "Boss.hpp"
 #include "../Engine/Renderer/OpenGLRenderer.hpp"
 
 //------------------------------------------
@@ -9,7 +9,7 @@ const float OUT_OF_BOUNDS_EAST = 37.f;
 const float OUT_OF_BOUNDS_WEST = -37.f;
 
 //------------------------------------------
-Enemy::Enemy()
+Boss::Boss()
 	: m_position(Vector2(0.f, 15.f))
 	, m_health(100.f)
 	, m_velocity(Vector2(0.f, 0.f))
@@ -34,17 +34,15 @@ Enemy::Enemy()
 }
 
 //------------------------------------------
-void Enemy::Update(float deltaSeconds)
+void Boss::Update(float deltaSeconds)
 {
 	UpdatePosition( deltaSeconds );
 
-	CheckAndResolveOutOfBounds();
-	
 	if ( m_health <= 0.f )
 	{
 		m_isDead = true;
 	}
-	
+
 	if ( m_isDead )
 	{
 		m_readyToFire = false;
@@ -61,7 +59,7 @@ void Enemy::Update(float deltaSeconds)
 }
 
 //------------------------------------------
-void Enemy::Render()
+void Boss::Render()
 {
 	if (m_isDead) 
 	{
@@ -97,7 +95,7 @@ void Enemy::Render()
 }
 
 //------------------------------------------
-bool Enemy::CheckCollision( const Vector2& entityPosition )
+bool Boss::CheckCollision( const Vector2& entityPosition )
 {
 	float distanceBetweenPlayerAndEntity = VectorMagnitude( m_position - entityPosition );
 	if ( distanceBetweenPlayerAndEntity < m_playerRadius )
@@ -111,109 +109,36 @@ bool Enemy::CheckCollision( const Vector2& entityPosition )
 }
 
 //-------------------------------------------------------
-void Enemy::UpdatePosition( float deltaSeconds )
+void Boss::UpdatePosition( float deltaSeconds )
 {
 	//m_position = m_position + ( m_velocity * deltaSeconds );
 
 	switch( m_movementPattern )
 	{
-		case AIMOVEMENTPATTERN_STILL:
-			m_velocity = Vector2(0.f, 0.f);
-			break;
-		case AIMOVEMENTPATTERN_LEFTTORIGHT:
-			m_velocity = Vector2(1.f, 0.f);
-			break;
-		case AIMOVEMENTPATTERN_RIGHTTOLEFT:
-			m_velocity = Vector2(-1.f, 0.f);
-			break;
-		case AIMOVEMENTPATTERN_DOWN:
-			m_velocity = Vector2(0.f, -1.f);
-			break;
-		case AIMOVEMENTPATTERN_DESTINATION:
-			if ( VectorMagnitude( (m_destination - m_position) ) <= ( deltaSeconds * m_movementSpeed ) )
-			{
-				m_position = m_destination;
-				m_movementPattern = AIMOVEMENTPATTERN_STILL;
-			}
-			else
-			{
-				m_velocity = Normalize( (m_destination - m_position) );
-			}
-			break;
+	case AIMOVEMENTPATTERN_STILL:
+		m_velocity = Vector2(0.f, 0.f);
+		break;
+	case AIMOVEMENTPATTERN_LEFTTORIGHT:
+		m_velocity = Vector2(1.f, 0.f);
+		break;
+	case AIMOVEMENTPATTERN_RIGHTTOLEFT:
+		m_velocity = Vector2(-1.f, 0.f);
+		break;
+	case AIMOVEMENTPATTERN_DOWN:
+		m_velocity = Vector2(0.f, -1.f);
+		break;
+	case AIMOVEMENTPATTERN_DESTINATION:
+		if ( VectorMagnitude( (m_destination - m_position) ) <= ( deltaSeconds * m_movementSpeed ) )
+		{
+			m_position = m_destination;
+			m_movementPattern = AIMOVEMENTPATTERN_STILL;
+		}
+		else
+		{
+			m_velocity = Normalize( (m_destination - m_position) );
+		}
+		break;
 	}
 
 	m_position = m_position + ( m_velocity * deltaSeconds * m_movementSpeed );
-}
-
-//----------------------------------------------------
-void Enemy::CheckAndResolveOutOfBounds()
-{
-	switch( m_movementPattern )
-	{
-		case AIMOVEMENTPATTERN_STILL:
-			m_isFiring = true;
-			break;
-		case AIMOVEMENTPATTERN_LEFTTORIGHT:
-			if ( m_position.x > OUT_OF_BOUNDS_EAST )
-			{
-				m_isDead = true;
-				m_isFiring = false;
-			}
-			else if ( m_position.x < OUT_OF_BOUNDS_WEST )
-			{
-				m_isFiring = false;
-			}
-			else
-			{
-				m_isFiring = true;
-			}
-			break;
-		case AIMOVEMENTPATTERN_RIGHTTOLEFT:
-			if ( m_position.x < OUT_OF_BOUNDS_WEST )
-			{
-				m_isDead = true;
-				m_isFiring = false;
-			}
-			else if ( m_position.x > OUT_OF_BOUNDS_EAST )
-			{
-				m_isFiring = false;
-			}
-			else
-			{
-				m_isFiring = true;
-			}
-			break;
-		case AIMOVEMENTPATTERN_DOWN:
-			if ( m_position.y < OUT_OF_BOUNDS_SOUTH )
-			{
-				m_isDead = true;
-				m_isFiring = false;
-			}
-			else if ( m_position.y > OUT_OF_BOUNDS_NORTH )
-			{
-				m_isFiring = false;
-			}
-			else
-			{
-				m_isFiring = true;
-			}
-			break;
-		case AIMOVEMENTPATTERN_DESTINATION:
-			m_isFiring = false;
-			m_delayTillNextShot = m_maxDelayTillNextShot;
-			break;
-	}
-}
-
-//----------------------------------------------------
-void Enemy::ChangeMaxHealth( float newHealth )
-{
-	m_health = newHealth;
-	m_maxHealthRatio = 1.f/m_health;
-}
-
-//----------------------------------------------------
-void Enemy::ChangeDelayTillNextShot( double newTime )
-{
-	m_maxDelayTillNextShot = newTime;
 }

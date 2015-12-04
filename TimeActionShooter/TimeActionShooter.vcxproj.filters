@@ -67,6 +67,12 @@
     <ClCompile Include="Game\PowerUp.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Boss.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Turret.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\World.hpp">
@@ -133,6 +139,12 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\PowerUp.hpp">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Boss.hpp">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Turret.hpp">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
