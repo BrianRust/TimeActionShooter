@@ -28,6 +28,7 @@ public:
 	AIShotPattern m_splitPattern;
 	BulletType m_splitBulletType;
 	double m_splitTime;
+	double m_maxSplitTime;
 
 	RGBA m_bulletColor;
 };

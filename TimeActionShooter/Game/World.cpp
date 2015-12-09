@@ -22,13 +22,14 @@ World::World(  )
 	, m_timeMeter(100.f)
 {
 	srand ((unsigned int)(time(NULL)));
+	m_levelBoss = Boss();
 }
 
 //----------------------------------------------------
 void World::Initialize()
 {
 	m_lastCurrentTime = Time::GetCurrentTimeSeconds();
-	m_stageNumber = 0;
+	m_stageNumber = 4;
 
 	m_stageTimer = ConstantParameters::LEVEL_DELAY;
 	
@@ -249,7 +250,7 @@ void World::Update()
 					if ( m_bullets[index].m_splitTime <= 0.0 )
 					{
 						BeginSplitShot( m_bullets[index] );
-						m_bullets[index].m_splitTime = ConstantParameters::SPLIT_BULLET_FREQUENCY;
+						m_bullets[index].m_splitTime = m_bullets[index].m_maxSplitTime;
 					} 
 				}
 			}
@@ -281,6 +282,26 @@ void World::Update()
 				m_stageTimer = ConstantParameters::LEVEL_DELAY;
 
 				SpawnEnemies();
+			}
+		}
+
+		if ( m_stageNumber >= 4 )
+		{
+			m_levelBoss.Update( deltaSeconds );
+
+			for ( unsigned int counter = 0; counter < 4; counter++ )
+			{
+				if ( m_levelBoss.m_bossParts[counter].m_readyToFire )
+				{
+					BeginTurretShotPattern( m_levelBoss.m_bossParts[counter] );
+					m_levelBoss.m_bossParts[counter].m_readyToFire = false;
+				}
+			}
+
+			if ( m_levelBoss.m_readyToFire )
+			{
+				BeginBossShotPattern( m_levelBoss );
+				m_levelBoss.m_readyToFire = false;
 			}
 		}
 	}
@@ -315,6 +336,11 @@ void World::Render()
 	for (unsigned int index = 0; index < m_powerUps.size(); index++)
 	{
 		m_powerUps[index].Render();
+	}
+
+	if ( m_stageNumber >= 4 )
+	{
+		m_levelBoss.Render();
 	}
 
 	RenderTimeMeter();
@@ -453,7 +479,36 @@ void World::CheckAndResolveBulletCollisions()
 					m_bullets[bulletIndex].m_isDead = true;
 				}
 			}
+
+			if ( ( m_stageNumber >= 4 ) && ( !m_bullets[bulletIndex].m_isDead ) )
+			{
+				for ( unsigned int counter = 0; counter < 4; counter++ )
+				{
+					if ( m_levelBoss.m_bossParts[counter].CheckCollision( m_bullets[bulletIndex].m_position ) )
+					{
+						if ( m_levelBoss.m_bossParts[counter].m_isVulnerable )
+						{
+							m_levelBoss.m_bossParts[counter].m_health -= 1.f;
+						}
+						m_bullets[bulletIndex].m_isDead = true;
+					}
+				}
+
+				if ( !m_bullets[bulletIndex].m_isDead )
+				{
+					if ( m_levelBoss.m_isVulnerable )
+					{
+						if ( m_levelBoss.CheckCollision( m_bullets[bulletIndex].m_position ) )
+						{
+							m_levelBoss.m_health -= 1.f;
+							m_bullets[bulletIndex].m_isDead = true;
+						}
+					}
+				}
+			}
 		}
+
+		
 	}
 }
 
@@ -722,12 +777,34 @@ void World::BeginSplitShot( const Bullet &splittingBullet )
 		break;
 	case AISHOTPATTERN_HORIZONTAL:
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, 0.f) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed, 0.f) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		break;
 	case AISHOTPATTERN_VERTICAL:
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, splittingBullet.m_shotSpeed) );
 		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, -splittingBullet.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
+		break;
+	case AISHOTPATTERN_CROSS:
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, 0.f) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed, 0.f) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, splittingBullet.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(0.f, -splittingBullet.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
+		break;
+	case AISHOTPATTERN_X:
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, splittingBullet.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed, -splittingBullet.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(-splittingBullet.m_shotSpeed, splittingBullet.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
+		SpawnBullet( true, false, splittingBullet.m_splitBulletType, m_player.m_position, splittingBullet.m_position, Vector2(splittingBullet.m_shotSpeed, -splittingBullet.m_shotSpeed) );
 		m_bullets[m_bullets.size()-1].m_bulletColor = RGBA(0.8f, 0.f, 0.f, 1.f);
 		break;
 	}
@@ -917,6 +994,98 @@ void World::SpawnEnemies()
 		break;
 	case 4:
 		//spawn boss
+		break;
+	}
+}
+
+//-----------------------------------------------------------
+void World::BeginTurretShotPattern( const Turret &firingEnemy )
+{
+	switch(firingEnemy.m_shotPattern)
+	{
+	case AISHOTPATTERN_SINGLEDIRECT:
+		SpawnBullet( true, true, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		break;
+	case AISHOTPATTERN_SPREAD:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed * 0.5f, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed * 0.5f, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		break;
+	case AISHOTPATTERN_HORIZONTAL:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, 0.f) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed, 0.f) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		break;
+	case AISHOTPATTERN_VERTICAL:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		break;
+	}
+}
+
+//-----------------------------------------------------------
+void World::BeginBossShotPattern( const Boss &firingEnemy )
+{
+	switch(firingEnemy.m_shotPattern)
+	{
+	case AISHOTPATTERN_SINGLEDIRECT:
+		SpawnBullet( true, true, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		break;
+	case AISHOTPATTERN_SPREAD:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed * 0.5f, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed * 0.5f, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		break;
+	case AISHOTPATTERN_HORIZONTAL:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(firingEnemy.m_shotSpeed, 0.f) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(-firingEnemy.m_shotSpeed, 0.f) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		break;
+	case AISHOTPATTERN_VERTICAL:
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
+		SpawnBullet( true, false, firingEnemy.m_bulletType, m_player.m_position, firingEnemy.m_position, Vector2(0.f, -firingEnemy.m_shotSpeed) );
+		m_bullets[m_bullets.size()-1].m_splitPattern = firingEnemy.m_splitPattern;
+		m_bullets[m_bullets.size()-1].m_splitBulletType = firingEnemy.m_splitBulletType;
 		break;
 	}
 }

@@ -18,6 +18,7 @@
 #include "PowerUp.hpp"
 #include "Bullet.hpp"
 #include "GameState.hpp"
+#include "Boss.hpp"
 
 //-------------------------------------------------------------
 class World
@@ -45,6 +46,8 @@ public:
 	void CheckAndResolvePlayerVsPowerUpCollisions();
 
 	void BeginEnemyShotPattern( const Enemy &firingEnemy );
+	void BeginTurretShotPattern( const Turret &firingEnemy );
+	void BeginBossShotPattern( const Boss &firingEnemy );
 	void BeginSplitShot( const Bullet &splittingBullet );
 	void FirePlayerBullets();
 	void SpawnBullet( bool FromEnemy, bool IsDirect, BulletType bulletType, Vector2 playerPosition, Vector2 enemyPosition, Vector2 initialVelocity );
@@ -79,6 +82,8 @@ public:
 	std::vector<Bullet> m_bullets;
 	std::vector<PowerUp> m_powerUps;
 	std::vector<GameState> m_gameStateBuffer;
+
+	Boss m_levelBoss;
 
 	int m_stageNumber;
 	double m_stageTimer;

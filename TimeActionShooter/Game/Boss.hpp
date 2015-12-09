@@ -4,6 +4,7 @@
 
 #include "../Engine/Math/MyMathFiles.hpp"
 #include "../Engine/Constants.hpp"
+#include "Turret.hpp"
 
 //-------------------------------------------------------------
 class Boss
@@ -14,7 +15,10 @@ public:
 	void Render();
 
 	void UpdatePosition(float deltaSeconds);
+	void UpdateBossPhase();
 	bool CheckCollision( const Vector2& entityPosition );
+
+	Turret m_bossParts[4];
 
 	Vector2 m_position;
 	Vector2 m_destination;
@@ -27,6 +31,7 @@ public:
 	AIShotPattern m_splitPattern;
 	BulletType m_splitBulletType;
 	bool m_isDead;
+	bool m_isVulnerable;
 	bool m_isFiring;
 
 	float m_playerRadius;
@@ -46,6 +51,7 @@ public:
 	RGBA m_playerColor;
 
 	int m_bossPhase;
+	int m_livingTurrets;
 };
 
 

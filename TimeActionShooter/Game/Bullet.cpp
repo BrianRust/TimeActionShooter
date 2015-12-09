@@ -21,6 +21,7 @@ Bullet::Bullet()
 	, m_shotSpeed(20.f)
 {
 	m_splitTime = ConstantParameters::SPLIT_BULLET_FREQUENCY;
+	m_maxSplitTime = ConstantParameters::SPLIT_BULLET_FREQUENCY;
 }
 
 //------------------------------------------
