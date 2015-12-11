@@ -29,7 +29,7 @@ World::World(  )
 void World::Initialize()
 {
 	m_lastCurrentTime = Time::GetCurrentTimeSeconds();
-	m_stageNumber = 4;
+	m_stageNumber = 0;
 
 	m_stageTimer = ConstantParameters::LEVEL_DELAY;
 	

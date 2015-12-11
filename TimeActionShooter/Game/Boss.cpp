@@ -10,7 +10,7 @@ const float OUT_OF_BOUNDS_WEST = -37.f;
 
 //------------------------------------------
 Boss::Boss()
-	: m_position(Vector2(0.f, 11.f))
+	: m_position(Vector2(0.f, 30.f))
 	, m_health(100.f)
 	, m_velocity(Vector2(0.f, 0.f))
 	, m_shotPattern(AISHOTPATTERN_SPREAD)
@@ -24,10 +24,10 @@ Boss::Boss()
 	, m_readyToFire(false)
 	, m_delayTillNextShot(DELAY_TILL_NEXT_SHOT)
 	, m_shotSpeed(20.f)
-	, m_movementPattern(AIMOVEMENTPATTERN_STILL)
+	, m_movementPattern(AIMOVEMENTPATTERN_DESTINATION)
 	, m_movementSpeed(5.f)
 	, m_isFiring(false)
-	, m_destination(Vector2(0.f, 15.f))
+	, m_destination(Vector2(0.f, 11.f))
 	, m_isVulnerable(false)
 	, m_livingTurrets(4)
 	, m_bossPhase(0)
@@ -237,14 +237,19 @@ void Boss::UpdateBossPhase()
 			m_bossParts[3].m_splitBulletType = BULLETTYPE_NORMAL;
 			break;
 		case 3:
-			m_bossParts[2].m_maxDelayTillNextShot = 0.2;
+			m_bossParts[2].m_maxDelayTillNextShot = 0.4;
 			m_bossParts[2].m_splitBulletType = BULLETTYPE_NORMAL;
-			m_bossParts[3].m_maxDelayTillNextShot = 0.2;
+			m_bossParts[3].m_maxDelayTillNextShot = 0.4;
 			m_bossParts[3].m_splitBulletType = BULLETTYPE_NORMAL;
 			break;
 		case 4:
 			m_isFiring = true;
 			m_isVulnerable = true;
+			m_maxDelayTillNextShot = 0.2;
+			m_shotPattern = AISHOTPATTERN_SPREAD;
+			m_bulletType = BULLETTYPE_SPLIT;
+			m_splitPattern = AISHOTPATTERN_X;
+			m_splitBulletType = BULLETTYPE_DRAG;
 			break;
 	}
 }
